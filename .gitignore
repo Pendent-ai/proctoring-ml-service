@@ -37,9 +37,10 @@ ENV/
 .env
 .env.local
 
-# Weights and models
-weights/*.pt
-weights/*.onnx
+# Weights and models (tracked via Git LFS)
+# Keep base models, ignore training outputs
+!weights/*.pt
+!weights/*.onnx
 weights/*.json
 !weights/.gitkeep
 
