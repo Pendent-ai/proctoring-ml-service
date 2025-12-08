@@ -75,29 +75,32 @@ proctoring-ml-service/
 │   └── publisher.py            # Alert publishing
 │
 ├── models/                     # ML models
-│   ├── yolo.py                 # YOLOv8 wrapper
-│   ├── mediapipe.py            # MediaPipe wrapper
-│   └── classifier.py           # Cheating classifier
+│   ├── yolo.py                 # YOLO11 detector
+│   ├── mediapipe.py            # MediaPipe face analyzer
+│   └── classifier.py           # XGBoost cheating classifier
 │
 ├── pipeline/                   # Processing pipeline
 │   ├── processor.py            # Main frame processor
 │   ├── features.py             # Feature extraction
 │   └── alerts.py               # Alert generation
 │
+├── alerts/                     # Alert system
+│   ├── __init__.py
+│   └── types.py                # Alert types and messages
+│
+├── utils/                      # Utilities
+│   ├── logger.py               # Logging setup
+│   └── metrics.py              # Metrics collection
+│
 ├── scripts/                    # Utility scripts
-│   ├── download_models.py      # Download pre-trained models
 │   ├── prepare_dataset.py      # Dataset preparation
-│   ├── train_yolo.py           # YOLOv8 fine-tuning
-│   └── evaluate.py             # Model evaluation
+│   ├── train_yolo.py           # YOLO11 fine-tuning
+│   ├── evaluate.py             # Model evaluation
+│   └── inference.py            # Test inference
 │
 ├── data/                       # Training data
-│   ├── raw/                    # Raw images
-│   ├── prepared/               # Processed dataset
-│   └── annotations/            # YOLO format labels
-│
-├── weights/                    # Model weights
-│   ├── yolo11n.pt              # Base YOLO11 nano
-│   └── yolo11_interview.pt     # Fine-tuned model
+├── weights/                    # Model weights (Git LFS)
+│   └── yolo11n.pt              # Base YOLO11 model
 │
 └── docs/                       # Documentation
     └── fine_tuning.md          # Fine-tuning guide
