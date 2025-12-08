@@ -2,24 +2,33 @@
 """
 Dataset Downloader for AI Interview Proctoring
 
-Downloads labeled datasets for training models for LIVE INTERVIEW monitoring:
+Downloads labeled datasets for training models for LIVE AI INTERVIEW monitoring:
 
 PRIORITY OBJECTS FOR INTERVIEW PROCTORING:
 ==========================================
-1. Phone detection (in hand, on desk)
-2. Earbuds/Headphones/AirPods  
-3. Smartwatch
-4. Calculator
-5. Notes/Cheat sheets
-6. Second person in frame
-7. Second screen (monitor)
+1. Phone detection (in hand, on desk) - ~50,000+ images
+2. Earbuds/Headphones/AirPods - ~6,000+ images  
+3. Smartwatch - ~3,000+ images
+4. Calculator - ~1,000+ images
+5. Notes/Cheat sheets/Books - ~5,000+ images
+6. Second person in frame - ~45,000+ images
+7. Second screen (TV/monitor) - ~2,000+ images
+8. Gaze direction (looking away) - ~12,000+ images
+9. Hand gestures (suspicious) - ~4,000+ images
 
-DATASETS TO DOWNLOAD:
-====================
-- Phone: ~20,000 images from multiple sources
-- Cheating objects: ~10,000 images (earbuds, smartwatch, etc.)
-- Face detection: Use pretrained (MediaPipe)
-- Person detection: Use pretrained (YOLO COCO)
+TOTAL AVAILABLE: ~130,000+ IMAGES across 30+ datasets!
+
+NEW DATASETS ADDED:
+==================
+✅ online_proctoring_system - 9.9K images (gaze + phone)
+✅ headphones_wired_wireless - 1.15K (wired vs wireless)
+✅ headphones_person - 1.42K (person wearing headphones)
+✅ cheating_cheatingways - 10.9K (laptop, mobile, pen, watch, headphones)
+✅ cheating_zeina - 9.46K (binary cheating detection)
+✅ kidsentry_master - 26.8K (adult/child + objects)
+✅ ddv2_person - 17.9K (multiple objects around person)
+✅ fyp_exam_proctoring - Extra person detection (CRITICAL)
+✅ And many more...
 
 Usage:
     # With Roboflow API key (RECOMMENDED):
@@ -27,7 +36,13 @@ Usage:
 
     # Download specific category:
     python download_datasets.py --api-key KEY --category phone
-    python download_datasets.py --api-key KEY --category cheating_objects
+    python download_datasets.py --api-key KEY --category earbuds
+    python download_datasets.py --api-key KEY --category interview
+    python download_datasets.py --api-key KEY --category cheating
+    python download_datasets.py --api-key KEY --category gaze
+    
+    # Download only priority 1 datasets (largest/most useful):
+    python download_datasets.py --api-key KEY --priority 1
     
     # List available datasets:
     python download_datasets.py --list
@@ -47,7 +62,9 @@ import urllib.error
 
 # Dataset registry with Roboflow workspace/project info
 DATASETS = {
-    # === PHONE DETECTION ===
+    # ============================================================
+    # === PHONE DETECTION (Essential for interview monitoring) ===
+    # ============================================================
     "phone_hi": {
         "workspace": "hi-wzisi",
         "project": "phone-du6hl",
@@ -94,7 +111,9 @@ DATASETS = {
         "description": "Hand holding phone detection"
     },
     
-    # === CHEATING DETECTION ===
+    # ============================================================
+    # === COMPREHENSIVE CHEATING DETECTION ===
+    # ============================================================
     "cheating_sumanth": {
         "workspace": "sumanth-kumar-c",
         "project": "cheating-detection-qc4rk",
@@ -141,17 +160,6 @@ DATASETS = {
         "priority": 1,
         "description": "Multiple exam cheating objects"
     },
-    
-    # === ADDITIONAL USEFUL ===
-    "cheating_unt": {
-        "workspace": "unt",
-        "project": "cheating-detection-ppnrs",
-        "version": 1,
-        "images": 50,
-        "classes": ["apuntes", "auriculares", "celular", "lapicera", "persona"],
-        "priority": 4,
-        "description": "Spanish labels - notes, earphones, phone, pen, person"
-    },
     "classroom_cheating": {
         "workspace": "classrom-assistance",
         "project": "cheating-detection-u2v47",
@@ -160,6 +168,259 @@ DATASETS = {
         "classes": ["cell phone", "Normal", "Talking"],
         "priority": 2,
         "description": "Classroom setting cheating"
+    },
+    
+    # ============================================================
+    # === NEW: ONLINE PROCTORING SPECIFIC (AI Interview) ===
+    # ============================================================
+    "online_proctoring_system": {
+        "workspace": "project-2morrow-software-limited",
+        "project": "online-proctoring-system-x27ou",
+        "version": 1,
+        "images": 9900,
+        "classes": ["face", "looking_down", "looking_left", "looking_right", 
+                   "looking_straight", "looking_up", "mobile_phone"],
+        "priority": 1,
+        "category": "interview",
+        "description": "⭐ LARGE - Gaze detection + phone for ONLINE interviews"
+    },
+    "online_proctoring_deep_learning": {
+        "workspace": "deep-learning-jdjnf",
+        "project": "online-proctoring-system",
+        "version": 1,
+        "images": 1970,
+        "classes": ["book", "cell_phone", "laptop", "person", "headphone", "tv"],
+        "priority": 1,
+        "category": "interview",
+        "description": "⭐ Laptop, headphones, TV/second screen detection"
+    },
+    "fyp_exam_proctoring": {
+        "workspace": "fyp-lyzmw",
+        "project": "fyp-exam-proctoring-robot",
+        "version": 1,
+        "images": 473,
+        "classes": ["book", "laptop", "phone", "extra_person", "student"],
+        "priority": 2,
+        "category": "interview",
+        "description": "Extra person detection - CRITICAL for interviews"
+    },
+    "proctoring_obj": {
+        "workspace": "proctoring-pjt1g",
+        "project": "proctoring-obj",
+        "version": 1,
+        "images": 548,
+        "classes": ["bottle", "mobile_phone", "notebook", "pen", "phone", 
+                   "watch", "ipad"],
+        "priority": 2,
+        "category": "interview",
+        "description": "iPad/tablet and notebook detection"
+    },
+    "proctoring_samya": {
+        "workspace": "samya-eiiy9",
+        "project": "proctoring-rzkos",
+        "version": 1,
+        "images": 782,
+        "classes": ["Kertas", "Menoleh", "Menunduk", "Smartphone", "Tidak_Ada_Kecurangan"],
+        "priority": 3,
+        "category": "interview",
+        "description": "Looking away (Menoleh), head down (Menunduk)"
+    },
+    "exam_proctoring_urhzv": {
+        "workspace": "fyp-lyzmw",
+        "project": "exam-proctoring-urhzv",
+        "version": 1,
+        "images": 463,
+        "classes": ["phone", "cheating", "not_cheating", "note_passing", 
+                   "objects", "possible_cheating"],
+        "priority": 3,
+        "category": "interview",
+        "description": "Cheating likelihood classification"
+    },
+    
+    # ============================================================
+    # === NEW: HEADPHONES/EARBUDS DETECTION (Interview Critical) ===
+    # ============================================================
+    "headphones_wired_wireless": {
+        "workspace": "erzhan",
+        "project": "headphones-yp3kq",
+        "version": 1,
+        "images": 1150,
+        "classes": ["wired_headphones", "wireless"],
+        "priority": 1,
+        "category": "earbuds",
+        "description": "⭐ Wired vs Wireless headphones classification"
+    },
+    "headphones_large": {
+        "workspace": "headphones-9uy0k",
+        "project": "headphones-fwhbt",
+        "version": 1,
+        "images": 1420,
+        "classes": ["headphones"],
+        "priority": 1,
+        "category": "earbuds",
+        "description": "⭐ Large headphones-only dataset"
+    },
+    "headphones_person": {
+        "workspace": "swati-karot-kti9y",
+        "project": "headphones-1etei",
+        "version": 1,
+        "images": 1420,
+        "classes": ["person_with_headphone", "person_without_headphone"],
+        "priority": 1,
+        "category": "earbuds",
+        "description": "⭐ Person wearing headphones detection"
+    },
+    "headphone_earphone_v2": {
+        "workspace": "just-a-guy-bqxzq",
+        "project": "headphone-earphone-detection-v2",
+        "version": 1,
+        "images": 459,
+        "classes": ["not_wearing", "wearing_earphones", "wearing_headphones"],
+        "priority": 2,
+        "category": "earbuds",
+        "description": "Earphones vs Headphones distinction"
+    },
+    "pen_calculator_earbuds": {
+        "workspace": "aquamanj",
+        "project": "pen-calculator-earbuds-ecdso",
+        "version": 1,
+        "images": 947,
+        "classes": ["Calculator", "Ear_Device", "Pen", "earbuds", "objects"],
+        "priority": 2,
+        "category": "earbuds",
+        "description": "Earbuds + Calculator + Pen detection"
+    },
+    
+    # ============================================================
+    # === NEW: GAZE/LOOKING DIRECTION DETECTION ===
+    # ============================================================
+    "gaze_direction": {
+        "workspace": "fraud-detection-using-cnn",
+        "project": "cheating-detection-ohiq5",
+        "version": 1,
+        "images": 197,
+        "classes": ["look_down", "look_forward", "look_left", "look_right", 
+                   "look_up", "mouth_close", "mouth_open"],
+        "priority": 2,
+        "category": "gaze",
+        "description": "Gaze + mouth detection for interview monitoring"
+    },
+    "looking_direction": {
+        "workspace": "project-6jgqt",
+        "project": "face-detection-slqcm",
+        "version": 1,
+        "images": 2060,
+        "classes": ["Back", "Front", "Left", "FrontRight", "Right", "Phone"],
+        "priority": 2,
+        "category": "gaze",
+        "description": "Face orientation with phone detection"
+    },
+    
+    # ============================================================
+    # === NEW: CHEATING BEHAVIORS & GESTURES ===
+    # ============================================================
+    "cheating_cheatingways": {
+        "workspace": "cheatingways",
+        "project": "cheating-zkje8",
+        "version": 1,
+        "images": 10900,
+        "classes": ["laptop", "mobile", "pen", "watch", "headphones"],
+        "priority": 1,
+        "category": "cheating",
+        "description": "⭐ MASSIVE - All cheating objects combined"
+    },
+    "cheating_zeina": {
+        "workspace": "zeina-niyuf",
+        "project": "cheating-aswze",
+        "version": 1,
+        "images": 9460,
+        "classes": ["normal", "cheating"],
+        "priority": 1,
+        "category": "cheating",
+        "description": "⭐ LARGE binary classification"
+    },
+    "cheating_jo": {
+        "workspace": "jo-qyhte",
+        "project": "cheating-gjiev",
+        "version": 1,
+        "images": 5760,
+        "classes": ["normal", "phone"],
+        "priority": 2,
+        "category": "cheating",
+        "description": "Large normal vs phone usage"
+    },
+    "cheating_system_3k": {
+        "workspace": "chetaing-detection",
+        "project": "cheating-detection-system-oy177",
+        "version": 1,
+        "images": 3550,
+        "classes": ["Hand_Gestures", "Passing_of_Paper", "Peeking", "Posture"],
+        "priority": 2,
+        "category": "cheating",
+        "description": "Gestures, paper passing, peeking, posture"
+    },
+    "cheating_analyze": {
+        "workspace": "analyze",
+        "project": "cheating-detection-obw3c",
+        "version": 1,
+        "images": 2790,
+        "classes": ["Fokus", "Mencontek"],
+        "priority": 3,
+        "category": "cheating",
+        "description": "Focused vs Cheating (Indonesian)"
+    },
+    
+    # ============================================================
+    # === NEW: EXTRA PERSON / MULTIPLE PEOPLE DETECTION ===
+    # ============================================================
+    "kidsentry_master": {
+        "workspace": "thesis-meyy8",
+        "project": "kidsentry_master_dataset-twnfr",
+        "version": 1,
+        "images": 26800,
+        "classes": ["book", "cup", "knife", "potted_plant", "remote", 
+                   "scissors", "adult", "child", "outlet"],
+        "priority": 2,
+        "category": "person",
+        "description": "⭐ MASSIVE - Adult/child detection + objects"
+    },
+    "ddv2_person": {
+        "workspace": "ddv2",
+        "project": "ddv2-zeg5e",
+        "version": 1,
+        "images": 17900,
+        "classes": ["backpack", "book", "door", "mobile_phone", "notebook", 
+                   "pen", "plastic_bottle"],
+        "priority": 2,
+        "category": "person",
+        "description": "⭐ LARGE - Multiple objects around person"
+    },
+    
+    # ============================================================
+    # === NEW: CALCULATOR DETECTION (Interview cheating) ===
+    # ============================================================
+    "calculator_detection": {
+        "workspace": "aquamanj",
+        "project": "pen-calculator-earbuds-ecdso",
+        "version": 1,
+        "images": 947,
+        "classes": ["Calculator", "Ear_Device", "Pen"],
+        "priority": 2,
+        "category": "calculator",
+        "description": "Calculator + Pen + Earbuds"
+    },
+    
+    # ============================================================
+    # === EXISTING: ADDITIONAL USEFUL ===
+    # ============================================================
+    "cheating_unt": {
+        "workspace": "unt",
+        "project": "cheating-detection-ppnrs",
+        "version": 1,
+        "images": 50,
+        "classes": ["apuntes", "auriculares", "celular", "lapicera", "persona"],
+        "priority": 4,
+        "description": "Spanish labels - notes, earphones, phone, pen, person"
     },
     "exam_monitoring": {
         "workspace": "college-hhnwl",
@@ -174,66 +435,141 @@ DATASETS = {
 }
 
 
-# Class mapping to unified proctoring classes
+# Class mapping to unified proctoring classes for AI Interview Monitoring
 CLASS_MAPPING = {
-    # Phone variants -> phone_in_hand
-    "phone": "phone_in_hand",
-    "cellphone": "phone_in_hand",
-    "mobile": "phone_in_hand",
-    "mobile_phone": "phone_in_hand",
-    "cell phone": "phone_in_hand",
-    "celular": "phone_in_hand",
-    "handphone": "phone_in_hand",
-    "phone_in_hand": "phone_in_hand",
-    "hand_phone": "phone_in_hand",
-    "phone_usage": "phone_in_hand",
-    "using phone": "phone_in_hand",
+    # === Phone variants -> phone ===
+    "phone": "phone",
+    "cellphone": "phone",
+    "mobile": "phone",
+    "mobile_phone": "phone",
+    "cell phone": "phone",
+    "cell_phone": "phone",
+    "celular": "phone",
+    "handphone": "phone",
+    "phone_in_hand": "phone",
+    "hand_phone": "phone",
+    "phone_usage": "phone",
+    "using phone": "phone",
+    "smartphone": "phone",
     
-    # Earphones/headphones -> earbuds
+    # === Earphones/headphones -> earbuds ===
     "earphone": "earbuds",
     "earphones": "earbuds",
     "headphones": "earbuds",
+    "headphone": "earbuds",
     "auriculares": "earbuds",
+    "ear_device": "earbuds",
+    "ear_piece": "earbuds",
+    "wired_headphones": "earbuds",
+    "wireless": "earbuds",
+    "person_with_headphone": "earbuds",
+    "wearing_earphones": "earbuds",
+    "wearing_headphones": "earbuds",
     
-    # Smartwatch
+    # === Smartwatch ===
     "smartwatch": "smartwatch",
     "watch": "smartwatch",
     
-    # Notes/books
+    # === Notes/books/paper ===
     "book": "notes",
     "apuntes": "notes",
     "paper_passing": "notes",
+    "notebook": "notes",
+    "kertas": "notes",  # Indonesian for paper
+    "passing_of_paper": "notes",
     
-    # Another person
+    # === Another person (CRITICAL for interviews) ===
     "person": "another_person",
     "persona": "another_person",
+    "extra_person": "another_person",
+    "student": "another_person",
+    "adult": "another_person",
+    "child": "another_person",
     
-    # Laptop
+    # === Laptop/tablet/second screen ===
     "laptop": "laptop",
+    "ipad": "laptop",
+    "tv": "second_screen",
     
-    # Behaviors (for classification training)
+    # === Calculator ===
+    "calculator": "calculator",
+    
+    # === Pen (less critical but useful) ===
+    "pen": "pen",
+    "lapicera": "pen",
+    
+    # === Gaze direction (CRITICAL for interview monitoring) ===
+    "looking_down": "looking_away",
+    "looking_left": "looking_away",
+    "looking_right": "looking_away",
+    "looking_up": "looking_away",
+    "look_down": "looking_away",
+    "look_left": "looking_away",
+    "look_right": "looking_away",
+    "look_up": "looking_away",
+    "menoleh": "looking_away",  # Indonesian: looking away
+    "menunduk": "looking_away",  # Indonesian: head down
+    "back": "looking_away",
+    "left": "looking_away",
+    "right": "looking_away",
+    "looking_straight": "looking_forward",
+    "looking_forward": "looking_forward",
+    "look_forward": "looking_forward",
+    "front": "looking_forward",
+    "frontright": "looking_forward",
+    
+    # === Behaviors (for classification training) ===
     "normal": "normal",
+    "tidak_ada_kecurangan": "normal",  # Indonesian: no cheating
+    "fokus": "normal",  # Indonesian: focused
+    "not_cheating": "normal",
+    "person_without_headphone": "normal",
+    "not_wearing": "normal",
+    
     "cheating": "cheating",
-    "peeking": "looking_away",
-    "looking around": "looking_away",
-    "head_rotation": "looking_away",
-    "learning to copy": "cheating",
-    "talking": "talking_to_someone",
+    "mencontek": "cheating",  # Indonesian: cheating
+    "possible_cheating": "cheating",
+    
+    "peeking": "peeking",
+    "looking around": "peeking",
+    "head_rotation": "peeking",
+    "learning to copy": "peeking",
+    
+    "talking": "talking",
+    "talking_to_someone": "talking",
+    "mouth_open": "talking",
+    
+    # === Hand gestures ===
+    "hand_gestures": "hand_gesture",
+    "hand_gesture": "hand_gesture",
+    "posture": "hand_gesture",
+    
+    # === Objects less relevant but keep for context ===
+    "bottle": "other_object",
+    "cup": "other_object",
+    "remote": "other_object",
+    "objects": "other_object",
 }
 
 
-# Final unified classes
+# Final unified classes for AI Interview Proctoring Model
 UNIFIED_CLASSES = [
-    "phone_in_hand",   # 0
-    "earbuds",         # 1
-    "smartwatch",      # 2
-    "notes",           # 3
-    "another_person",  # 4
-    "laptop",          # 5
-    "normal",          # 6 (for classification)
-    "cheating",        # 7 (for classification)
-    "looking_away",    # 8
-    "talking_to_someone"  # 9
+    "phone",           # 0 - Phone in hand or visible
+    "earbuds",         # 1 - Earphones, headphones, AirPods
+    "smartwatch",      # 2 - Smartwatch/Apple Watch
+    "notes",           # 3 - Books, papers, cheat sheets
+    "another_person",  # 4 - Second person in frame (CRITICAL)
+    "laptop",          # 5 - Laptop/tablet/iPad
+    "second_screen",   # 6 - TV/monitor as second screen
+    "calculator",      # 7 - Calculator
+    "pen",             # 8 - Pen (low priority)
+    "looking_away",    # 9 - Looking left/right/down/up
+    "looking_forward", # 10 - Looking at camera (normal)
+    "peeking",         # 11 - Peeking at something
+    "talking",         # 12 - Talking to someone
+    "hand_gesture",    # 13 - Suspicious hand movements
+    "normal",          # 14 - Normal behavior
+    "cheating",        # 15 - General cheating behavior
 ]
 
 
