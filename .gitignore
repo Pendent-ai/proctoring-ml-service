@@ -48,12 +48,8 @@ weights/*.json
 runs/
 wandb/
 
-# Data
-data/raw/
-data/prepared/
-data/images/
-data/labels/
-!data/.gitkeep
+# Data - ignore completely (large datasets)
+data/
 
 # Logs
 *.log
