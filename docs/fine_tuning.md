@@ -1,10 +1,12 @@
-# YOLOv8 Fine-Tuning Guide
+# YOLO11 Fine-Tuning Guide
 
-This guide covers fine-tuning YOLOv8 for interview-specific object detection.
+This guide covers fine-tuning **YOLO11** (Ultralytics latest) for interview-specific object detection.
+
+https://docs.ultralytics.com/models/yolo11/
 
 ## Overview
 
-We fine-tune YOLOv8 to detect:
+We fine-tune YOLO11 to detect:
 - **Phones** (handheld and on desk)
 - **Multiple people** in frame
 - **Cheat sheets / notes**
@@ -115,7 +117,7 @@ python scripts/train_yolo.py \
 ```bash
 python scripts/train_yolo.py \
     --data data/dataset.yaml \    # Dataset config
-    --model yolov8n.pt \          # Base model (n, s, m, l, x)
+    --model yolo11n.pt \          # Base model (n, s, m, l, x)
     --epochs 50 \                 # Training epochs
     --batch 16 \                  # Batch size
     --imgsz 640 \                 # Image size
@@ -124,16 +126,17 @@ python scripts/train_yolo.py \
     --name my_model               # Run name
 ```
 
-### Model Variants
+### Model Variants (YOLO11)
 
-| Model    | Size   | mAP   | Speed (T4) | Use Case |
-|----------|--------|-------|------------|----------|
-| yolov8n  | 6.3MB  | 37.3% | 100+ FPS   | Real-time, edge |
-| yolov8s  | 22MB   | 44.9% | 60 FPS     | Balanced |
-| yolov8m  | 52MB   | 50.2% | 30 FPS     | Higher accuracy |
-| yolov8l  | 87MB   | 52.9% | 20 FPS     | Best accuracy |
+| Model   | Size   | mAP   | Speed (T4) | Use Case |
+|---------|--------|-------|------------|----------|
+| yolo11n | 2.6M   | 39.5% | 100+ FPS   | Real-time, edge |
+| yolo11s | 9.4M   | 47.0% | 60 FPS     | Balanced |
+| yolo11m | 20.1M  | 51.5% | 30 FPS     | Higher accuracy |
+| yolo11l | 25.3M  | 53.4% | 20 FPS     | Best accuracy |
+| yolo11x | 56.9M  | 54.7% | 11 FPS     | Maximum accuracy |
 
-For real-time processing at 10 FPS, **yolov8n** or **yolov8s** recommended.
+For real-time processing at 10 FPS, **yolo11n** or **yolo11s** recommended.
 
 ## Evaluation
 
@@ -163,7 +166,7 @@ After fine-tuning on interview data:
 from models.yolo import YOLODetector
 
 # Use fine-tuned model
-detector = YOLODetector(model_path="weights/yolov8_interview.pt")
+detector = YOLODetector(model_path="weights/yolo11_interview.pt")
 
 # Detect objects
 results = detector.detect(frame)
@@ -176,7 +179,7 @@ print(results["person_count"])
 1. **Balance your dataset** - Equal samples per class
 2. **Include hard negatives** - Similar objects that aren't phones
 3. **Augment carefully** - Avoid unrealistic transformations
-4. **Start with nano** - YOLOv8n trains faster for experiments
+4. **Start with nano** - yolo11n trains faster for experiments
 5. **Monitor val loss** - Stop if overfitting occurs
 6. **Test on real interviews** - Validate with actual video frames
 
@@ -190,13 +193,16 @@ Recommended tools for annotation:
 
 ## Transfer Learning Strategy
 
-1. Start with COCO pre-trained YOLOv8n
+1. Start with COCO pre-trained yolo11n
 2. Freeze backbone for first 10 epochs
 3. Unfreeze and train full model
 4. Use lower learning rate (0.001 → 0.0001)
 
 ```python
 # Advanced training with frozen backbone
+from ultralytics import YOLO
+
+model = YOLO("yolo11n.pt")
 model.train(
     data="dataset.yaml",
     epochs=50,

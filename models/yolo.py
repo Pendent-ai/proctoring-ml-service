@@ -1,5 +1,8 @@
 """
-YOLOv8 Object Detection Model
+YOLO11 Object Detection Model
+
+Uses Ultralytics YOLO11 - the latest and most performant YOLO version.
+https://docs.ultralytics.com/models/yolo11/
 """
 
 from pathlib import Path
@@ -18,7 +21,7 @@ TV_CLASS = 62
 
 
 class YOLODetector:
-    """YOLOv8 wrapper for object detection."""
+    """YOLO11 wrapper for object detection."""
     
     # Classes we want to detect
     TARGET_CLASSES = {
@@ -31,7 +34,7 @@ class YOLODetector:
     
     def __init__(self, model_path: str | None = None):
         """
-        Initialize YOLOv8 detector.
+        Initialize YOLO11 detector.
         
         Args:
             model_path: Path to model weights. Uses default if None.
@@ -40,8 +43,8 @@ class YOLODetector:
         
         # Download if not exists
         if not Path(path).exists():
-            print(f"📥 Downloading YOLOv8 model...")
-            path = "yolov8n.pt"  # Will download automatically
+            print(f"📥 Downloading YOLO11 model...")
+            path = "yolo11n.pt"  # Will download automatically
         
         self.model = YOLO(path)
         
@@ -49,7 +52,7 @@ class YOLODetector:
         if settings.use_gpu:
             self.model.to("cuda")
         
-        print(f"✅ YOLOv8 loaded: {path}")
+        print(f"✅ YOLO11 loaded: {path}")
     
     def detect(self, frame: np.ndarray) -> dict:
         """

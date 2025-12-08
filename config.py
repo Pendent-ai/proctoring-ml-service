@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     livekit_api_secret: str = Field(default="secret", env="LIVEKIT_API_SECRET")
     
     # Model paths
-    yolo_model_path: str = Field(default="weights/yolov8n.pt", env="YOLO_MODEL_PATH")
+    yolo_model_path: str = Field(default="weights/yolo11n.pt", env="YOLO_MODEL_PATH")
     classifier_model_path: str = Field(default="weights/classifier.json", env="CLASSIFIER_MODEL_PATH")
     
     # Processing

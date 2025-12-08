@@ -1,11 +1,13 @@
 """
-YOLOv8 Fine-Tuning Script
+YOLO11 Fine-Tuning Script
 
-Fine-tune YOLOv8 for interview-specific object detection:
+Fine-tune YOLO11 (latest Ultralytics) for interview-specific object detection:
 - Phones (handheld, on desk)
-- Multiple people
+- Multiple people  
 - Cheat sheets / notes
 - Secondary screens
+
+https://docs.ultralytics.com/models/yolo11/
 """
 
 import argparse
@@ -55,7 +57,7 @@ def train(
     resume: bool = False,
 ):
     """
-    Fine-tune YOLOv8 on custom dataset.
+    Fine-tune YOLO11 on custom dataset.
     
     Args:
         data_yaml: Path to dataset YAML file
@@ -69,7 +71,7 @@ def train(
         device: Device to use (0 for GPU, cpu for CPU)
         resume: Resume from last checkpoint
     """
-    print("🚀 Starting YOLOv8 fine-tuning...")
+    print("🚀 Starting YOLO11 fine-tuning...")
     print(f"   Base model: {base_model}")
     print(f"   Dataset: {data_yaml}")
     print(f"   Epochs: {epochs}")
@@ -137,10 +139,10 @@ def export_model(model_path: str, format: str = "onnx"):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Fine-tune YOLOv8 for interview detection")
+    parser = argparse.ArgumentParser(description="Fine-tune YOLO11 for interview detection")
     
     parser.add_argument("--data", type=str, required=True, help="Path to dataset YAML")
-    parser.add_argument("--model", type=str, default="yolov8n.pt", help="Base model")
+    parser.add_argument("--model", type=str, default="yolo11n.pt", help="Base model (yolo11n, yolo11s, yolo11m, yolo11l, yolo11x)")
     parser.add_argument("--epochs", type=int, default=50, help="Training epochs")
     parser.add_argument("--batch", type=int, default=16, help="Batch size")
     parser.add_argument("--imgsz", type=int, default=640, help="Image size")

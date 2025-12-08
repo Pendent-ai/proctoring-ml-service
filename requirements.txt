@@ -4,8 +4,8 @@ numpy>=1.24.0
 opencv-python>=4.8.0
 pillow>=10.0.0
 
-# YOLOv8
-ultralytics>=8.3.0
+# YOLO11 (Ultralytics latest)
+ultralytics>=8.3.50
 
 # MediaPipe
 mediapipe>=0.10.0
