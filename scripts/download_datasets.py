@@ -681,7 +681,19 @@ class DatasetDownloader:
         
         rf = Roboflow(api_key=self.api_key)
         project = rf.workspace(info["workspace"]).project(info["project"])
-        version = project.version(info["version"])
+        
+        # Auto-detect latest version if specified version fails
+        specified_version = info.get("version", 1)
+        try:
+            version = project.version(specified_version)
+        except Exception as e:
+            print(f"   ⚠️  Version {specified_version} not found, trying to get latest...")
+            versions = project.versions()
+            if versions:
+                version = versions[0]
+                print(f"   📌 Using version {version.version}")
+            else:
+                raise Exception(f"No versions available for {info['project']}")
         
         expected_images = info.get("images", "unknown")
         print(f"   ⬇️  Downloading ~{expected_images} images via Roboflow API...")
