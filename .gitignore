@@ -45,8 +45,12 @@ weights/*.json
 !weights/.gitkeep
 
 # Training outputs
-runs/
+# runs/  # Commented out - we want to push trained models
 wandb/
+
+# Keep trained models (tracked via LFS)
+!runs/detect/*/weights/best.pt
+!runs/detect/*/weights/last.pt
 
 # Data - ignore completely (large datasets)
 data/
