@@ -667,7 +667,7 @@ class DatasetDownloader:
             self._download_public(key, info, dataset_dir)
     
     def _download_with_api(self, key: str, info: Dict, output_dir: Path):
-        """Download using Roboflow API"""
+        """Download using Roboflow API with progress indicator"""
         try:
             from roboflow import Roboflow
         except ImportError:
@@ -679,9 +679,24 @@ class DatasetDownloader:
         project = rf.workspace(info["workspace"]).project(info["project"])
         version = project.version(info["version"])
         
-        print(f"   ⬇️  Downloading via API...")
+        expected_images = info.get("images", "unknown")
+        print(f"   ⬇️  Downloading ~{expected_images} images via Roboflow API...")
+        print(f"   ⏳ This may take 2-5 minutes for large datasets...")
+        
+        # Download with progress
+        import time
+        start_time = time.time()
         dataset = version.download(self.format, location=str(output_dir))
-        print(f"   ✅ Downloaded to {output_dir}")
+        elapsed = time.time() - start_time
+        
+        # Count actual downloaded images
+        images_count = 0
+        for split in ["train", "valid", "test"]:
+            split_images = output_dir / split / "images"
+            if split_images.exists():
+                images_count += len(list(split_images.glob("*")))
+        
+        print(f"   ✅ Downloaded {images_count} images in {elapsed:.1f}s to {output_dir}")
     
     def _download_public(self, key: str, info: Dict, output_dir: Path):
         """Download from public URL if available"""
