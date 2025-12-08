@@ -71,15 +71,6 @@ DATASETS = {
     # ============================================================
     # === PHONE DETECTION (Essential for interview monitoring) ===
     # ============================================================
-    "phone_hi": {
-        "workspace": "hi-wzisi",
-        "project": "phone-du6hl",
-        "version": 1,
-        "images": 9720,
-        "classes": ["phone"],
-        "priority": 1,
-        "description": "Large phone detection dataset"
-    },
     "phone_person": {
         "workspace": "phonedt",
         "project": "phone-person",
@@ -344,6 +335,17 @@ DATASETS = {
         "priority": 1,
         "category": "cheating",
         "description": "⭐ LARGE binary classification"
+    },
+    # phone_hi moved to end of Priority 1 (version detection issue)
+    "phone_hi": {
+        "workspace": "hi-wzisi",
+        "project": "phone-du6hl",
+        "version": 1,
+        "images": 9720,
+        "classes": ["phone"],
+        "priority": 1,
+        "category": "phone",
+        "description": "Large phone detection dataset (download last)"
     },
     "cheating_jo": {
         "workspace": "jo-qyhte",
