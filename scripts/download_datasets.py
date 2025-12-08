@@ -675,18 +675,44 @@ class DatasetDownloader:
             os.system("pip install roboflow -q")
             from roboflow import Roboflow
         
+        import time
+        import threading
+        import sys
+        
         rf = Roboflow(api_key=self.api_key)
         project = rf.workspace(info["workspace"]).project(info["project"])
         version = project.version(info["version"])
         
         expected_images = info.get("images", "unknown")
         print(f"   ⬇️  Downloading ~{expected_images} images via Roboflow API...")
-        print(f"   ⏳ This may take 2-5 minutes for large datasets...")
+        print(f"   ⏳ This may take 2-5 minutes for large datasets...", flush=True)
         
-        # Download with progress
-        import time
+        # Progress spinner in background
+        stop_spinner = threading.Event()
+        def spinner():
+            chars = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+            i = 0
+            start = time.time()
+            while not stop_spinner.is_set():
+                elapsed = int(time.time() - start)
+                sys.stdout.write(f"\r   {chars[i % len(chars)]} Downloading... {elapsed}s elapsed")
+                sys.stdout.flush()
+                i += 1
+                time.sleep(0.1)
+            sys.stdout.write("\r" + " " * 50 + "\r")
+            sys.stdout.flush()
+        
+        spinner_thread = threading.Thread(target=spinner)
+        spinner_thread.start()
+        
+        # Download
         start_time = time.time()
-        dataset = version.download(self.format, location=str(output_dir))
+        try:
+            dataset = version.download(self.format, location=str(output_dir))
+        finally:
+            stop_spinner.set()
+            spinner_thread.join()
+        
         elapsed = time.time() - start_time
         
         # Count actual downloaded images
