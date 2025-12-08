@@ -59,6 +59,12 @@ from typing import Dict, List, Optional, Tuple
 import urllib.request
 import urllib.error
 
+# ============================================
+# CONFIGURATION - Roboflow API Key
+# ============================================
+# Get your own at: https://app.roboflow.com/settings/api
+ROBOFLOW_API_KEY = "WYYAK1sLCjjwaXhv82T3"
+
 
 # Dataset registry with Roboflow workspace/project info
 DATASETS = {
@@ -579,11 +585,11 @@ class DatasetDownloader:
     def __init__(
         self,
         output_dir: str = "data/training",
-        api_key: Optional[str] = None,
+        api_key: Optional[str] = ROBOFLOW_API_KEY,
         format: str = "yolov8"
     ):
         self.output_dir = Path(output_dir)
-        self.api_key = api_key
+        self.api_key = api_key or ROBOFLOW_API_KEY
         self.format = format
         
         # Create directories
@@ -900,8 +906,8 @@ def main():
     parser.add_argument(
         "--api-key", "-k",
         type=str,
-        default=os.environ.get("ROBOFLOW_API_KEY"),
-        help="Roboflow API key. Get free at https://app.roboflow.com/settings/api"
+        default=os.environ.get("ROBOFLOW_API_KEY", ROBOFLOW_API_KEY),
+        help="Roboflow API key (default: embedded key)"
     )
     parser.add_argument(
         "--output", "-o",
@@ -959,22 +965,13 @@ def main():
         print(f"\nTotal: {sum(d['images'] for d in DATASETS.values())} images across {len(DATASETS)} datasets")
         return
     
-    # Check API key
-    if not args.api_key and not args.public:
-        print("\n⚠️  No Roboflow API key provided!")
-        print("   Get a free API key at: https://app.roboflow.com/settings/api")
-        print("\n   Options:")
-        print("   1. Set ROBOFLOW_API_KEY environment variable")
-        print("   2. Use --api-key YOUR_KEY")
-        print("   3. Use --public for manual download instructions")
-        print("\n   Example:")
-        print("   python download_datasets.py --api-key rf_xxxxxxxxxxxx")
-        return
+    # API key is now embedded by default, no need to check
+    api_key = args.api_key
     
     # Download
     downloader = DatasetDownloader(
         output_dir=args.output,
-        api_key=args.api_key if not args.public else None,
+        api_key=api_key if not args.public else None,
         format=args.format
     )
     
