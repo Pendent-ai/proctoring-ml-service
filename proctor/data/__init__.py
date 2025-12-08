@@ -31,4 +31,17 @@ __all__ = [
     "FrameDataset",
     "FeatureNormalizer",
     "DataAugmentation",
+    # Data collectors
+    "InterviewDataCollector",
+    "SyntheticDataGenerator",
+    "BehaviorLabel",
+    "AudioLabel",
 ]
+
+# Import collectors
+from proctor.data.collectors import (
+    InterviewDataCollector,
+    SyntheticDataGenerator,
+    BehaviorLabel,
+    AudioLabel,
+)
