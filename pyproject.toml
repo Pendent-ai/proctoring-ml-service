@@ -1,0 +1,120 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "proctor"
+version = "0.1.0"
+description = "Real-time ML proctoring system for online interviews"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "Pendent AI", email = "contact@pendent.ai" }
+]
+keywords = [
+    "proctoring",
+    "machine-learning",
+    "yolo",
+    "mediapipe",
+    "livekit",
+    "computer-vision",
+    "interview",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Multimedia :: Video :: Capture",
+]
+
+dependencies = [
+    "livekit>=0.11.0",
+    "livekit-api>=0.5.0",
+    "ultralytics>=8.3.0",
+    "mediapipe>=0.10.0",
+    "numpy>=1.24.0",
+    "opencv-python>=4.8.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+]
+
+[project.optional-dependencies]
+audio = [
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+    "silero-vad>=5.0.0",
+]
+classifier = [
+    "xgboost>=2.0.0",
+    "scikit-learn>=1.3.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+all = [
+    "proctor[audio,classifier,dev]",
+]
+
+[project.scripts]
+proctor = "proctor.service:main"
+
+[project.urls]
+Homepage = "https://github.com/Pendent-ai/proctoring-ml-service"
+Documentation = "https://github.com/Pendent-ai/proctoring-ml-service/docs"
+Repository = "https://github.com/Pendent-ai/proctoring-ml-service"
+Issues = "https://github.com/Pendent-ai/proctoring-ml-service/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["proctor"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/proctor",
+    "/weights",
+    "/README.md",
+    "/LICENSE",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "C",    # flake8-comprehensions
+    "B",    # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
