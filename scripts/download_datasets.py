@@ -16,19 +16,21 @@ PRIORITY OBJECTS FOR INTERVIEW PROCTORING:
 8. Gaze direction (looking away) - ~12,000+ images
 9. Hand gestures (suspicious) - ~4,000+ images
 
-TOTAL AVAILABLE: ~130,000+ IMAGES across 30+ datasets!
+TOTAL AVAILABLE: ~145,000+ IMAGES across 35+ datasets!
 
-NEW DATASETS ADDED:
-==================
-✅ online_proctoring_system - 9.9K images (gaze + phone)
-✅ headphones_wired_wireless - 1.15K (wired vs wireless)
-✅ headphones_person - 1.42K (person wearing headphones)
+PRIORITY 1 DATASETS (Core Training):
+====================================
+✅ online_proctoring_system - 87K images (gaze + phone)
 ✅ cheating_cheatingways - 10.9K (laptop, mobile, pen, watch, headphones)
 ✅ cheating_zeina - 9.46K (binary cheating detection)
-✅ kidsentry_master - 26.8K (adult/child + objects)
-✅ ddv2_person - 17.9K (multiple objects around person)
-✅ fyp_exam_proctoring - Extra person detection (CRITICAL)
-✅ And many more...
+✅ mobile_phone_tusker - 9.9K (phone detection)
+✅ And more...
+
+PRIORITY 2 EDGE CASE DATASETS (Fine-tuning):
+============================================
+✅ face_hiding_detection - 3.63K (face covered by hand/scarf)
+✅ notes_detection_large - 9.97K (additional notes/paper)
+✅ sticky_notes_desk - 150 (sticky notes on desk)
 
 Usage:
     # With Roboflow API key (RECOMMENDED):
@@ -39,10 +41,13 @@ Usage:
     python download_datasets.py --api-key KEY --category earbuds
     python download_datasets.py --api-key KEY --category interview
     python download_datasets.py --api-key KEY --category cheating
-    python download_datasets.py --api-key KEY --category gaze
+    python download_datasets.py --api-key KEY --category edge_case
     
     # Download only priority 1 datasets (largest/most useful):
     python download_datasets.py --api-key KEY --priority 1
+    
+    # Download priority 2 edge case datasets:
+    python download_datasets.py --api-key KEY --priority 2 --category edge_case
     
     # List available datasets:
     python download_datasets.py --list
@@ -440,6 +445,43 @@ DATASETS = {
         "priority": 3,
         "description": "Behavior classification in exam"
     },
+    
+    # ============================================================
+    # === PRIORITY 2: EDGE CASE DATASETS (For Fine-tuning) ===
+    # ============================================================
+    "face_hiding_detection": {
+        "workspace": "university-8zqnr",
+        "project": "face-hiding-detection",
+        "version": 1,
+        "images": 3630,
+        "classes": ["hand", "balaclava", "concealing_glasses", "medicine_mask", 
+                   "non-concealing_glasses", "nothing", "scarf"],
+        "priority": 2,
+        "category": "edge_case",
+        "description": "⭐ Face covered by hand/scarf/mask detection"
+    },
+    "notes_detection_large": {
+        "workspace": "note-detection-2024",
+        "project": "notes-dpwrs",
+        "version": 1,
+        "images": 9970,
+        "classes": ["note"],
+        "priority": 2,
+        "category": "edge_case",
+        "description": "⭐ LARGE notes/paper detection for edge cases"
+    },
+    "sticky_notes_desk": {
+        "workspace": "qwerty-k5pgk",
+        "project": "desk-ir3be",
+        "version": 1,
+        "images": 150,
+        "classes": ["bag", "book", "bottle", "keyboard", "laptop", "mouse", 
+                   "mug", "vase", "StickyNotes", "calender", "desktop", 
+                   "file", "filetray", "headphone", "nameplate", "page"],
+        "priority": 2,
+        "category": "edge_case",
+        "description": "⭐ Sticky notes on desk detection"
+    },
 }
 
 
@@ -552,6 +594,27 @@ CLASS_MAPPING = {
     "hand_gesture": "hand_gesture",
     "posture": "hand_gesture",
     
+    # === Edge Case: Face Hiding ===
+    "hand": "face_hiding",
+    "balaclava": "face_hiding",
+    "concealing_glasses": "face_hiding",
+    "medicine_mask": "face_hiding",
+    "scarf": "face_hiding",
+    "non-concealing_glasses": "normal",  # Regular glasses are OK
+    "nothing": "normal",
+    
+    # === Edge Case: Sticky Notes ===
+    "stickynotes": "notes",
+    "StickyNotes": "notes",
+    "sticky_notes": "notes",
+    "calender": "notes",
+    "page": "notes",
+    "filetray": "other_object",
+    "nameplate": "other_object",
+    "desktop": "other_object",
+    "vase": "other_object",
+    "mug": "other_object",
+    
     # === Objects less relevant but keep for context ===
     "bottle": "other_object",
     "cup": "other_object",
@@ -562,22 +625,23 @@ CLASS_MAPPING = {
 
 # Final unified classes for AI Interview Proctoring Model
 UNIFIED_CLASSES = [
-    "phone",           # 0 - Phone in hand or visible
-    "earbuds",         # 1 - Earphones, headphones, AirPods
-    "smartwatch",      # 2 - Smartwatch/Apple Watch
-    "notes",           # 3 - Books, papers, cheat sheets
-    "another_person",  # 4 - Second person in frame (CRITICAL)
-    "laptop",          # 5 - Laptop/tablet/iPad
-    "second_screen",   # 6 - TV/monitor as second screen
-    "calculator",      # 7 - Calculator
-    "pen",             # 8 - Pen (low priority)
-    "looking_away",    # 9 - Looking left/right/down/up
-    "looking_forward", # 10 - Looking at camera (normal)
-    "peeking",         # 11 - Peeking at something
-    "talking",         # 12 - Talking to someone
-    "hand_gesture",    # 13 - Suspicious hand movements
-    "normal",          # 14 - Normal behavior
-    "cheating",        # 15 - General cheating behavior
+    "phone",            # 0 - Phone in hand or visible
+    "earbuds",          # 1 - Earphones, headphones, AirPods
+    "smartwatch",       # 2 - Smartwatch/Apple Watch
+    "notes",            # 3 - Books, papers, cheat sheets, sticky notes
+    "another_person",   # 4 - Second person in frame (CRITICAL)
+    "laptop",           # 5 - Laptop/tablet/iPad
+    "second_screen",    # 6 - TV/monitor as second screen
+    "calculator",       # 7 - Calculator
+    "pen",              # 8 - Pen (low priority)
+    "looking_away",     # 9 - Looking left/right/down/up
+    "looking_forward",  # 10 - Looking at camera (normal)
+    "peeking",          # 11 - Peeking at something
+    "talking",          # 12 - Talking to someone
+    "hand_gesture",     # 13 - Suspicious hand movements
+    "normal",           # 14 - Normal behavior
+    "cheating",         # 15 - General cheating behavior
+    "face_hiding",      # 16 - Face covered by hand/scarf/mask
 ]
 
 

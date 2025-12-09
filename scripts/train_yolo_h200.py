@@ -239,7 +239,7 @@ def train(
         "verbose": True,
         "plots": True,
         "save": True,
-        "save_period": 50,              # Save checkpoint every 50 epochs
+        "save_period": 1,               # Save checkpoint every epoch
     }
     
     # Train
