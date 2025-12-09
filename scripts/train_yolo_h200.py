@@ -353,6 +353,13 @@ Presets (H200 141GB VRAM):
     )
     
     parser.add_argument(
+        "--resume-from",
+        type=str,
+        default=None,
+        help="Path to checkpoint to resume from (e.g., runs/detect/run_name/weights/last.pt)"
+    )
+    
+    parser.add_argument(
         "--workers", "-w",
         type=int,
         default=12,
@@ -371,6 +378,28 @@ Presets (H200 141GB VRAM):
     batch = args.batch if args.batch else preset["batch"]
     imgsz = args.imgsz if args.imgsz else preset["imgsz"]
     patience = preset["patience"]
+    
+    # Handle resume - auto-detect checkpoint if not specified
+    model = args.model
+    if args.resume:
+        if args.resume_from:
+            model = args.resume_from
+            print(f"📂 Resuming from: {model}")
+        else:
+            # Try to find the most recent last.pt
+            from pathlib import Path
+            runs_dir = Path("runs/detect")
+            if runs_dir.exists():
+                # Find most recent run with last.pt
+                checkpoints = sorted(runs_dir.glob("*/weights/last.pt"), key=lambda x: x.stat().st_mtime, reverse=True)
+                if checkpoints:
+                    model = str(checkpoints[0])
+                    print(f"📂 Auto-detected checkpoint: {model}")
+                else:
+                    print("❌ No checkpoint found! Starting fresh training.")
+                    print("   Use --resume-from to specify checkpoint path")
+            else:
+                print("❌ No runs directory found! Starting fresh training.")
     
     # Run training
     train(
