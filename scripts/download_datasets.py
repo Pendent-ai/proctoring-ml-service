@@ -22,8 +22,8 @@ PRIORITY 1 DATASETS (Core Training):
 ====================================
 ✅ online_proctoring_system - 87K images (gaze + phone)
 ✅ cheating_cheatingways - 10.9K (laptop, mobile, pen, watch, headphones)
-✅ cheating_zeina - 9.46K (binary cheating detection)
 ✅ mobile_phone_tusker - 9.9K (phone detection)
+✅ phone_hi - 9.7K (phone detection)
 ✅ And more...
 
 PRIORITY 2 EDGE CASE DATASETS (Fine-tuning):
@@ -331,16 +331,7 @@ DATASETS = {
         "category": "cheating",
         "description": "⭐ MASSIVE - All cheating objects combined"
     },
-    "cheating_zeina": {
-        "workspace": "zeina-niyuf",
-        "project": "cheating-aswze",
-        "version": 1,
-        "images": 9460,
-        "classes": ["normal", "cheating"],
-        "priority": 1,
-        "category": "cheating",
-        "description": "⭐ LARGE binary classification"
-    },
+    # cheating_zeina removed - no versions available on Roboflow
     # phone_hi moved to end of Priority 1 (version detection issue)
     "phone_hi": {
         "workspace": "hi-wzisi",

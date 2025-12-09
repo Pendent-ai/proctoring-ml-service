@@ -32,42 +32,42 @@ from datetime import datetime
 PRESETS = {
     "fast": {
         "epochs": 100,
-        "batch": 96,        # H200 can handle massive batches
+        "batch": 128,        # H200 can handle massive batches
         "imgsz": 640,
         "patience": 30,
         "description": "Fast training (~25-30 min, ~2 credits)"
     },
     "balanced": {
         "epochs": 200,
-        "batch": 80,
+        "batch": 128,
         "imgsz": 640,
         "patience": 40,
         "description": "Balanced speed/accuracy (~45 min, ~3 credits)"
     },
     "accurate": {
         "epochs": 300,
-        "batch": 64,
+        "batch": 128,
         "imgsz": 640,
         "patience": 50,
         "description": "High accuracy (~1 hr, ~4 credits)"
     },
     "best": {
         "epochs": 400,
-        "batch": 48,
+        "batch": 128,
         "imgsz": 640,
         "patience": 60,
         "description": "Best accuracy (~1.5 hrs, ~6 credits)"
     },
     "ultimate": {
         "epochs": 500,
-        "batch": 32,
+        "batch": 128,
         "imgsz": 640,
         "patience": 80,
         "description": "Ultimate accuracy (~2 hrs, ~8 credits)"
     },
     "extreme": {
         "epochs": 600,
-        "batch": 24,
+        "batch": 128,
         "imgsz": 800,       # Higher resolution for extreme accuracy
         "patience": 100,
         "description": "EXTREME accuracy (~3 hrs, ~12 credits)"
