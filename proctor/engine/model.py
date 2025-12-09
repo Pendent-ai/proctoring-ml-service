@@ -4,9 +4,11 @@ Proctor Engine - Base Model Class
 Following Ultralytics pattern for model architecture.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from proctor.cfg import BaseConfig
 
@@ -33,8 +35,8 @@ class BaseModel(ABC):
     
     def __init__(
         self,
-        model: str | Path | None = None,
-        task: str | None = None,
+        model: Optional[Union[str, Path]] = None,
+        task: Optional[str] = None,
         verbose: bool = True,
     ):
         """

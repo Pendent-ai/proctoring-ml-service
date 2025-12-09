@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Proctoring Service
 
@@ -131,7 +132,7 @@ class ProctoringService:
         """Setup LiveKit event handlers."""
         
         @self.room.on("track_subscribed")
-        async def on_track_subscribed(
+        def on_track_subscribed(
             track: rtc.Track,
             publication: rtc.RemoteTrackPublication,
             participant: rtc.RemoteParticipant,
@@ -151,7 +152,7 @@ class ProctoringService:
                 self.tasks.append(task)
         
         @self.room.on("track_unsubscribed")
-        async def on_track_unsubscribed(
+        def on_track_unsubscribed(
             track: rtc.Track,
             publication: rtc.RemoteTrackPublication,
             participant: rtc.RemoteParticipant,
@@ -163,11 +164,11 @@ class ProctoringService:
                 self.audio_receiver.clear_buffer(participant.identity)
         
         @self.room.on("participant_disconnected")
-        async def on_participant_disconnected(participant: rtc.RemoteParticipant):
+        def on_participant_disconnected(participant: rtc.RemoteParticipant):
             logger.info(f"👋 Participant left: {participant.identity}")
         
         @self.room.on("disconnected")
-        async def on_disconnected():
+        def on_disconnected():
             logger.info("🔌 Disconnected from room")
             self.running = False
     

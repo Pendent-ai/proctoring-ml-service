@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Proctor Engine - Base classes and advanced models for proctoring.
 
@@ -19,7 +20,7 @@ from proctor.engine.predictor import BasePredictor
 from proctor.engine.trainer import BaseTrainer
 from proctor.engine.validator import BaseValidator
 from proctor.engine.results import Results, DetectionResults, AnalysisResults
-from proctor.engine.features import FeatureExtractor
+from proctor.engine.features import EnhancedFeatureExtractor as FeatureExtractor
 from proctor.engine.classifier import (
     EnsembleClassifier,
     EnsembleConfig,

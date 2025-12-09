@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Multimodal fusion for audio-visual cheating detection.
 

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Ensemble classifier with stacking and calibration for cheating detection.
 

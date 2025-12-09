@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Temporal sequence model for cheating detection.
 

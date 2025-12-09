@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Proctor Configuration Classes
 
@@ -27,9 +28,9 @@ class BaseConfig(BaseModel):
 class VideoConfig(BaseConfig):
     """Configuration for video proctoring."""
     
-    # Model paths
+    # Model paths - Use trained proctoring model
     yolo_model_path: str = Field(
-        default="weights/yolo11n.pt",
+        default="runs/detect/proctoring_h200_20251209_020408/weights/best.pt",
         description="Path to YOLO model weights",
     )
     classifier_model_path: str = Field(
@@ -108,8 +109,8 @@ class Settings(BaseSettings):
     livekit_api_key: str = Field(default="devkey", env="LIVEKIT_API_KEY")
     livekit_api_secret: str = Field(default="secret", env="LIVEKIT_API_SECRET")
     
-    # Model paths
-    yolo_model_path: str = Field(default="weights/yolo11n.pt", env="YOLO_MODEL_PATH")
+    # Model paths - Use trained proctoring model by default
+    yolo_model_path: str = Field(default="runs/detect/proctoring_h200_20251209_020408/weights/best.pt", env="YOLO_MODEL_PATH")
     classifier_model_path: str = Field(default="weights/classifier.json", env="CLASSIFIER_MODEL_PATH")
     
     # Processing

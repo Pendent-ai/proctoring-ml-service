@@ -4,8 +4,10 @@ Proctor Engine - Results Classes
 Data classes for storing prediction results.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Optional, List
 from datetime import datetime
 import numpy as np
 

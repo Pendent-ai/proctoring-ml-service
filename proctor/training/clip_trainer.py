@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Video clip trainer for temporal cheating detection.
 

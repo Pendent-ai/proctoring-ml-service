@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Dataset classes for proctoring model training.
 

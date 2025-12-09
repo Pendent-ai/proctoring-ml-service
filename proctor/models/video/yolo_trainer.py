@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Custom YOLO training for interview-specific object detection.
 
