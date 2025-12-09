@@ -408,7 +408,7 @@ Presets (H200 141GB VRAM):
         batch=batch,
         imgsz=imgsz,
         patience=patience,
-        model=args.model,
+        model=model,  # Use the updated model path (checkpoint if resuming)
         name=args.name,
         resume=args.resume,
         workers=args.workers,
