@@ -94,6 +94,8 @@ class VideoPredictor(BasePredictor):
     
     def setup_model(self):
         """Load YOLO and MediaPipe models."""
+        import torch
+        
         # Load YOLO
         YOLO = _import_yolo()
         
@@ -105,11 +107,27 @@ class VideoPredictor(BasePredictor):
         
         self.yolo = YOLO(model_path)
         
+        # Detect best available device
         if self.cfg.use_gpu:
-            self.yolo.to("cuda")
-            self.device = "cuda"
+            if torch.backends.mps.is_available():
+                # Apple Silicon (M1/M2/M3/M4)
+                self.yolo.to("mps")
+                self.device = "mps"
+                print("🍎 Using Apple MPS (Metal Performance Shaders)")
+            elif torch.cuda.is_available():
+                # NVIDIA GPU
+                self.yolo.to("cuda")
+                self.device = "cuda"
+                print("🎮 Using NVIDIA CUDA")
+            else:
+                # CPU fallback
+                self.device = "cpu"
+                print("💻 Using CPU (no GPU available)")
+        else:
+            self.device = "cpu"
+            print("💻 Using CPU (GPU disabled in config)")
         
-        print(f"✅ YOLO11 loaded: {model_path}")
+        print(f"✅ YOLO11 loaded: {model_path} on {self.device}")
         
         # Load MediaPipe
         mp = _import_mediapipe()
