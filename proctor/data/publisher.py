@@ -71,8 +71,18 @@ class AlertPublisher:
         if not self._check_cooldown(alert_key):
             return False
         
-        # Prepare payload
-        payload = json.dumps(alert.to_dict()).encode("utf-8")
+        # Prepare payload in format expected by Node.js backend
+        payload = json.dumps({
+            "type": "proctoring_alert",  # Message type identifier
+            "alertType": alert.type,     # Alert type (phone_detected, etc.)
+            "severity": alert.severity,
+            "message": alert.message,
+            "participantId": alert.participant_id,
+            "timestamp": alert.timestamp.isoformat(),
+            "source": alert.source,
+            "confidence": alert.details.get("cheating_probability", 0.8),
+            "details": alert.details,
+        }).encode("utf-8")
         
         # Publish to data channel
         await self.room.local_participant.publish_data(
