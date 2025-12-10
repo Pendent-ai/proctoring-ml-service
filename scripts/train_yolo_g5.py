@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """
-YOLO11 Training Script - Optimized for NVIDIA H200 (141GB VRAM)
+YOLO11 Training Script - Optimized for AWS g5.2xlarge (NVIDIA A10G 24GB)
 
-H200 Specs:
-- 141GB HBM3e VRAM (MASSIVE!)
-- 1,979 TFLOPs FP16/BF16
-- 989 TFLOPs TF32
-- 3,958 TOPS INT8
-- ~2x faster than H100, ~4x faster than A100
+g5.2xlarge Specs:
+- 1x NVIDIA A10G GPU (24GB VRAM)
+- 8 vCPUs (AMD EPYC)
+- 32 GB RAM
+- Up to 10 Gbps network
+- Supports CUDA, cuDNN, TensorRT
 
-Cost: 3.62 Lightning credits/hour
+Cost: ~$1.21/hour (on-demand), ~$0.48/hour (spot)
 
 Usage:
-    # Ultimate preset (recommended for max accuracy)
-    python train_yolo_h200.py --data data/training/merged/data.yaml --preset ultimate
+    # Balanced preset (recommended)
+    python train_yolo_g5.py --data data/training/merged/data.yaml --preset balanced
     
-    # Fast training
-    python train_yolo_h200.py --data data/training/merged/data.yaml --preset fast
+    # Fast training for testing
+    python train_yolo_g5.py --data data/training/merged/data.yaml --preset fast
     
     # Custom epochs
-    python train_yolo_h200.py --data data/training/merged/data.yaml --epochs 500 --batch 64
+    python train_yolo_g5.py --data data/training/merged/data.yaml --epochs 200 --batch 16
 """
 
 import argparse
@@ -28,50 +28,43 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
-# Training presets optimized for H200 141GB VRAM
+# Training presets optimized for A10G 24GB VRAM
 PRESETS = {
     "fast": {
-        "epochs": 100,
-        "batch": 128,        # H200 can handle massive batches
-        "imgsz": 640,
-        "patience": 30,
-        "description": "Fast training (~25-30 min, ~2 credits)"
-    },
-    "balanced": {
         "epochs": 200,
-        "batch": 128,
+        "batch": 16,          # Safe for 24GB VRAM
         "imgsz": 640,
         "patience": 40,
-        "description": "Balanced speed/accuracy (~45 min, ~3 credits)"
+        "description": "Fast training (~4 hrs, ~$4.80)"
     },
-    "accurate": {
-        "epochs": 300,
-        "batch": 128,
-        "imgsz": 640,
-        "patience": 50,
-        "description": "High accuracy (~1 hr, ~4 credits)"
-    },
-    "best": {
+    "balanced": {
         "epochs": 400,
-        "batch": 128,
+        "batch": 16,
         "imgsz": 640,
         "patience": 60,
-        "description": "Best accuracy (~1.5 hrs, ~6 credits)"
+        "description": "Balanced speed/accuracy (~8 hrs, ~$9.60)"
     },
-    "ultimate": {
-        "epochs": 500,
-        "batch": 128,
+    "accurate": {
+        "epochs": 600,
+        "batch": 16,
         "imgsz": 640,
         "patience": 80,
-        "description": "Ultimate accuracy (~2 hrs, ~8 credits)"
+        "description": "High accuracy (~12 hrs, ~$14.50)"
     },
-    "extreme": {
-        "epochs": 600,
-        "batch": 128,
-        "imgsz": 800,       # Higher resolution for extreme accuracy
+    "best": {
+        "epochs": 800,
+        "batch": 12,
+        "imgsz": 640,
         "patience": 100,
-        "description": "EXTREME accuracy (~3 hrs, ~12 credits)"
-    }
+        "description": "Best accuracy (~16-20 hrs, ~$20.00)"
+    },
+    "ultimate": {
+        "epochs": 1000,
+        "batch": 12,
+        "imgsz": 640,
+        "patience": 120,
+        "description": "Ultimate accuracy (~24-30 hrs, ~$30.00)"
+    },
 }
 
 # 16 unified classes for AI interview proctoring
@@ -105,12 +98,14 @@ def check_gpu():
             print(f"✅ GPU detected: {gpu_name}")
             print(f"   VRAM: {vram_gb:.1f} GB")
             
-            if "H200" in gpu_name or vram_gb > 130:
-                print("   🔥 H200 BEAST MODE ACTIVATED!")
-            elif "H100" in gpu_name or vram_gb > 70:
-                print("   ⚡ H100 detected - consider using train_yolo_h100.py")
-            elif "A100" in gpu_name or vram_gb > 35:
-                print("   💪 A100 detected - consider using train_yolo_a100_40gb.py")
+            if "A10G" in gpu_name or (20 < vram_gb < 26):
+                print("   ⚡ A10G detected - g5.2xlarge optimized mode!")
+            elif "A10" in gpu_name:
+                print("   ⚡ A10 variant detected")
+            elif vram_gb > 30:
+                print("   💪 Larger GPU detected - you can increase batch size!")
+            elif vram_gb < 20:
+                print("   ⚠️  Smaller GPU - reducing batch size recommended")
             
             return True, vram_gb
         else:
@@ -123,28 +118,28 @@ def check_gpu():
 
 def train(
     data_yaml: str,
-    epochs: int = 500,
-    batch: int = 64,
+    epochs: int = 100,
+    batch: int = 16,
     imgsz: int = 640,
-    patience: int = 80,
+    patience: int = 25,
     model: str = "yolo11m.pt",
     name: str = None,
     resume: bool = False,
-    workers: int = 12,
+    workers: int = 4,
 ):
     """
-    Train YOLO11 model optimized for H200.
+    Train YOLO11 model optimized for AWS g5.2xlarge (A10G 24GB).
     
     Args:
         data_yaml: Path to data.yaml file
         epochs: Number of training epochs
-        batch: Batch size (H200 can handle 64-128)
-        imgsz: Image size (640 or 800 for extreme)
+        batch: Batch size (A10G 24GB handles 8-16)
+        imgsz: Image size (640 recommended)
         patience: Early stopping patience
         model: Base model to use
         name: Run name
         resume: Resume from last checkpoint
-        workers: Number of data loading workers
+        workers: Number of data loading workers (4 for 8 vCPUs)
     """
     try:
         from ultralytics import YOLO
@@ -157,16 +152,16 @@ def train(
     has_gpu, vram = check_gpu()
     
     # Auto-adjust batch size based on VRAM
-    if has_gpu and vram < 130:
-        print(f"⚠️  VRAM ({vram:.0f}GB) less than expected for H200 (141GB)")
-        print("   Reducing batch size for safety...")
-        if vram < 80:
-            batch = min(batch, 32)
-        elif vram < 100:
-            batch = min(batch, 48)
-        else:
-            batch = min(batch, 64)
-        print(f"   Adjusted batch size: {batch}")
+    if has_gpu:
+        if vram < 20:
+            print(f"⚠️  VRAM ({vram:.0f}GB) is limited")
+            batch = min(batch, 8)
+            print(f"   Adjusted batch size: {batch}")
+        elif vram < 24:
+            batch = min(batch, 12)
+            print(f"   Adjusted batch size: {batch}")
+        elif vram > 30:
+            print(f"   💪 Extra VRAM available - you could increase batch size")
     
     # Validate data path
     data_path = Path(data_yaml)
@@ -179,10 +174,10 @@ def train(
     # Generate run name
     if name is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        name = f"proctoring_h200_{timestamp}"
+        name = f"proctoring_g5_{timestamp}"
     
     print("\n" + "=" * 60)
-    print("🚀 YOLO11m Training - H200 BEAST MODE")
+    print("🚀 YOLO11m Training - AWS g5.2xlarge (A10G 24GB)")
     print("=" * 60)
     print(f"   Model: {model}")
     print(f"   Data: {data_yaml}")
@@ -195,17 +190,18 @@ def train(
     print("=" * 60)
     
     # Estimated time and cost
-    est_time_hrs = (epochs / 500) * 2  # ~2 hrs for 500 epochs
-    est_credits = est_time_hrs * 3.62
+    est_time_hrs = (epochs / 100) * 2  # ~2 hrs for 100 epochs on A10G
+    est_cost = est_time_hrs * 1.21  # $1.21/hr on-demand
+    est_cost_spot = est_time_hrs * 0.48  # ~$0.48/hr spot
     print(f"\n⏱️  Estimated time: ~{est_time_hrs:.1f} hours")
-    print(f"💰 Estimated cost: ~{est_credits:.1f} Lightning credits")
+    print(f"💰 Estimated cost: ~${est_cost:.2f} (on-demand) / ~${est_cost_spot:.2f} (spot)")
     print()
     
     # Load model
     print("📦 Loading YOLO11m model...")
     yolo = YOLO(model)
     
-    # Training configuration optimized for H200
+    # Training configuration optimized for A10G 24GB
     train_args = {
         "data": str(data_path),
         "epochs": epochs,
@@ -217,11 +213,11 @@ def train(
         "device": 0,
         "resume": resume,
         
-        # H200 optimizations
-        "amp": True,                    # Mixed precision (FP16/BF16)
-        "cache": "disk",                # Cache images to disk (RAM not enough for 157K images)
+        # A10G optimizations
+        "amp": True,                    # Mixed precision (FP16) - essential for A10G
+        "cache": False,                 # Don't cache - only 32GB RAM
         "cos_lr": True,                 # Cosine learning rate scheduler
-        "close_mosaic": 20,             # Disable mosaic last 20 epochs
+        "close_mosaic": 10,             # Disable mosaic last 10 epochs
         
         # Augmentation for interview proctoring
         "hsv_h": 0.015,                 # Hue augmentation
@@ -233,13 +229,13 @@ def train(
         "flipud": 0.0,                  # No vertical flip (webcam)
         "fliplr": 0.5,                  # Horizontal flip
         "mosaic": 1.0,                  # Mosaic augmentation
-        "mixup": 0.1,                   # Mixup augmentation
+        "mixup": 0.0,                   # Disable mixup to save VRAM
         
         # Logging
         "verbose": True,
         "plots": True,
         "save": True,
-        "save_period": 1,               # Save checkpoint every epoch
+        "save_period": 1,               # Save checkpoint every epoch (important for long training)
     }
     
     # Train
@@ -267,32 +263,37 @@ def train(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Train YOLO11 for AI Interview Proctoring (H200 optimized)",
+        description="Train YOLO11 for AI Interview Proctoring (AWS g5.2xlarge A10G optimized)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-    # Ultimate accuracy (recommended)
-    python train_yolo_h200.py --data data/training/merged/data.yaml --preset ultimate
+    # Balanced preset (recommended)
+    python train_yolo_g5.py --data data/training/merged/data.yaml --preset balanced
     
     # Fast training for testing
-    python train_yolo_h200.py --data data/training/merged/data.yaml --preset fast
+    python train_yolo_g5.py --data data/training/merged/data.yaml --preset fast
     
-    # Extreme accuracy (longer training)
-    python train_yolo_h200.py --data data/training/merged/data.yaml --preset extreme
+    # Best accuracy
+    python train_yolo_g5.py --data data/training/merged/data.yaml --preset best
     
     # Custom configuration
-    python train_yolo_h200.py --data data/training/merged/data.yaml --epochs 400 --batch 64
+    python train_yolo_g5.py --data data/training/merged/data.yaml --epochs 150 --batch 12
     
     # Resume interrupted training
-    python train_yolo_h200.py --data data/training/merged/data.yaml --resume
+    python train_yolo_g5.py --data data/training/merged/data.yaml --resume
 
-Presets (H200 141GB VRAM):
-    fast      - 100 epochs, batch=96  (~25-30 min, ~2 credits)
-    balanced  - 200 epochs, batch=80  (~45 min, ~3 credits)
-    accurate  - 300 epochs, batch=64  (~1 hr, ~4 credits)
-    best      - 400 epochs, batch=48  (~1.5 hrs, ~6 credits)
-    ultimate  - 500 epochs, batch=32  (~2 hrs, ~8 credits)
-    extreme   - 600 epochs, batch=24, imgsz=800 (~3 hrs, ~12 credits)
+Presets (A10G 24GB VRAM, 32GB RAM):
+    fast      - 200 epochs,  batch=16 (~4 hrs,     ~$4.80)
+    balanced  - 400 epochs,  batch=16 (~8 hrs,     ~$9.60) [DEFAULT]
+    accurate  - 600 epochs,  batch=16 (~12 hrs,    ~$14.50)
+    best      - 800 epochs,  batch=12 (~16-20 hrs, ~$20.00)
+    ultimate  - 1000 epochs, batch=12 (~24-30 hrs, ~$30.00)
+
+Tips for g5.2xlarge:
+    - Use spot instances for ~60% cost savings
+    - batch=16 is optimal for yolo11m on 24GB VRAM
+    - cache=False because only 32GB RAM (not enough for 157K images)
+    - workers=4 matches the 8 vCPU count well
         """
     )
     
@@ -307,8 +308,8 @@ Presets (H200 141GB VRAM):
         "--preset", "-p",
         type=str,
         choices=list(PRESETS.keys()),
-        default="ultimate",
-        help="Training preset (default: ultimate)"
+        default="balanced",
+        help="Training preset (default: balanced)"
     )
     
     parser.add_argument(
@@ -362,8 +363,8 @@ Presets (H200 141GB VRAM):
     parser.add_argument(
         "--workers", "-w",
         type=int,
-        default=12,
-        help="Number of data loading workers (default: 12)"
+        default=4,
+        help="Number of data loading workers (default: 4 for 8 vCPUs)"
     )
     
     args = parser.parse_args()
@@ -387,7 +388,6 @@ Presets (H200 141GB VRAM):
             print(f"📂 Resuming from: {model}")
         else:
             # Try to find the most recent last.pt
-            from pathlib import Path
             runs_dir = Path("runs/detect")
             if runs_dir.exists():
                 # Find most recent run with last.pt
@@ -408,7 +408,7 @@ Presets (H200 141GB VRAM):
         batch=batch,
         imgsz=imgsz,
         patience=patience,
-        model=model,  # Use the updated model path (checkpoint if resuming)
+        model=model,
         name=args.name,
         resume=args.resume,
         workers=args.workers,

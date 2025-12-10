@@ -1,5 +1,5 @@
 """
-Dataset Preparation for YOLOv8 Fine-Tuning
+Dataset Preparation for YOLO11 Fine-Tuning
 
 Converts various annotation formats to YOLO format.
 """
@@ -237,8 +237,8 @@ def main():
     create_dataset_yaml(output_dir, class_names)
     
     print(f"\n✅ Dataset prepared in: {output_dir}")
-    print(f"\nTo train YOLOv8:")
-    print(f"  python scripts/train_yolo.py --data {output_dir}/dataset.yaml")
+    print(f"\nTo train YOLO11:")
+    print(f"  python scripts/train_yolo_h200.py --data {output_dir}/dataset.yaml")
 
 
 if __name__ == "__main__":
