@@ -59,11 +59,11 @@ PRESETS = {
         "description": "Best accuracy (~1.5 hrs, ~6 credits)"
     },
     "ultimate": {
-        "epochs": 500,
+        "epochs": 1000,
         "batch": 128,
         "imgsz": 640,
-        "patience": 80,
-        "description": "Ultimate accuracy (~2 hrs, ~8 credits)"
+        "patience": 150,
+        "description": "Ultimate accuracy 1000 epochs (~4-5 hrs, ~18 credits)"
     },
     "extreme": {
         "epochs": 600,
@@ -71,7 +71,7 @@ PRESETS = {
         "imgsz": 800,       # Higher resolution for extreme accuracy
         "patience": 100,
         "description": "EXTREME accuracy (~3 hrs, ~12 credits)"
-    }
+    },
 }
 
 # 16 unified classes for AI interview proctoring
