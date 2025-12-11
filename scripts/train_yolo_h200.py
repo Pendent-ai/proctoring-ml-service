@@ -74,24 +74,18 @@ PRESETS = {
     },
 }
 
-# 16 unified classes for AI interview proctoring
+# 9 unified OBJECT classes for AI interview proctoring
+# (Removed behavioral classes - use MediaPipe for gaze/pose detection)
 INTERVIEW_CLASSES = [
     "phone",           # Mobile phone usage
     "earbuds",         # Earbuds/AirPods
     "smartwatch",      # Smartwatch
-    "notes",           # Notes/cheat sheets
+    "notes",           # Notes/cheat sheets/books
     "another_person",  # Extra person in frame
-    "laptop",          # Secondary laptop
+    "laptop",          # Secondary laptop/tablet
     "second_screen",   # TV/monitor in background
     "calculator",      # Calculator device
-    "pen",             # Writing instrument
-    "looking_away",    # Gaze away from screen
-    "looking_forward", # Proper gaze
-    "peeking",         # Suspicious peeking
-    "talking",         # Talking/lip movement
-    "hand_gesture",    # Suspicious hand gestures
-    "normal",          # Normal behavior
-    "cheating",        # General cheating behavior
+    "face_hiding",     # Face covered by hand/scarf/mask
 ]
 
 

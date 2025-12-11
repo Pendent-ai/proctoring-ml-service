@@ -539,51 +539,57 @@ CLASS_MAPPING = {
     "pen": "pen",
     "lapicera": "pen",
     
-    # === Gaze direction (CRITICAL for interview monitoring) ===
-    "looking_down": "looking_away",
-    "looking_left": "looking_away",
-    "looking_right": "looking_away",
-    "looking_up": "looking_away",
-    "look_down": "looking_away",
-    "look_left": "looking_away",
-    "look_right": "looking_away",
-    "look_up": "looking_away",
-    "menoleh": "looking_away",  # Indonesian: looking away
-    "menunduk": "looking_away",  # Indonesian: head down
-    "back": "looking_away",
-    "left": "looking_away",
-    "right": "looking_away",
-    "looking_straight": "looking_forward",
-    "looking_forward": "looking_forward",
-    "look_forward": "looking_forward",
-    "front": "looking_forward",
-    "frontright": "looking_forward",
+    # === Gaze direction -> SKIP (use MediaPipe instead) ===
+    # These behavioral classes cannot be reliably detected by YOLO
+    # Use MediaPipe face mesh for gaze detection instead
+    "looking_down": None,  # Skip - use MediaPipe
+    "looking_left": None,  # Skip - use MediaPipe
+    "looking_right": None, # Skip - use MediaPipe
+    "looking_up": None,    # Skip - use MediaPipe
+    "look_down": None,
+    "look_left": None,
+    "look_right": None,
+    "look_up": None,
+    "menoleh": None,       # Indonesian: looking away
+    "menunduk": None,      # Indonesian: head down
+    "back": None,
+    "left": None,
+    "right": None,
+    "looking_straight": None,
+    "looking_forward": None,
+    "look_forward": None,
+    "front": None,
+    "frontright": None,
     
-    # === Behaviors (for classification training) ===
-    "normal": "normal",
-    "tidak_ada_kecurangan": "normal",  # Indonesian: no cheating
-    "fokus": "normal",  # Indonesian: focused
-    "not_cheating": "normal",
-    "person_without_headphone": "normal",
-    "not_wearing": "normal",
+    # === Behaviors -> SKIP (cannot be detected by object detection) ===
+    "normal": None,
+    "tidak_ada_kecurangan": None,  # Indonesian: no cheating
+    "fokus": None,                  # Indonesian: focused
+    "not_cheating": None,
+    "person_without_headphone": None,
+    "not_wearing": None,
     
-    "cheating": "cheating",
-    "mencontek": "cheating",  # Indonesian: cheating
-    "possible_cheating": "cheating",
+    "cheating": None,
+    "mencontek": None,              # Indonesian: cheating
+    "possible_cheating": None,
     
-    "peeking": "peeking",
-    "looking around": "peeking",
-    "head_rotation": "peeking",
-    "learning to copy": "peeking",
+    "peeking": None,
+    "looking around": None,
+    "head_rotation": None,
+    "learning to copy": None,
     
-    "talking": "talking",
-    "talking_to_someone": "talking",
-    "mouth_open": "talking",
+    "talking": None,
+    "talking_to_someone": None,
+    "mouth_open": None,
     
-    # === Hand gestures ===
-    "hand_gestures": "hand_gesture",
-    "hand_gesture": "hand_gesture",
-    "posture": "hand_gesture",
+    # === Hand gestures -> SKIP ===
+    "hand_gestures": None,
+    "hand_gesture": None,
+    "posture": None,
+    
+    # === Pen -> SKIP (too small, unreliable) ===
+    "pen": None,
+    "lapicera": None,
     
     # === Edge Case: Face Hiding ===
     "hand": "face_hiding",
@@ -591,8 +597,8 @@ CLASS_MAPPING = {
     "concealing_glasses": "face_hiding",
     "medicine_mask": "face_hiding",
     "scarf": "face_hiding",
-    "non-concealing_glasses": "normal",  # Regular glasses are OK
-    "nothing": "normal",
+    "non-concealing_glasses": None,  # Regular glasses are OK - skip
+    "nothing": None,  # Skip normal behavior
     
     # === Edge Case: Sticky Notes ===
     "stickynotes": "notes",
@@ -600,21 +606,22 @@ CLASS_MAPPING = {
     "sticky_notes": "notes",
     "calender": "notes",
     "page": "notes",
-    "filetray": "other_object",
-    "nameplate": "other_object",
-    "desktop": "other_object",
-    "vase": "other_object",
-    "mug": "other_object",
+    "filetray": None,   # Skip irrelevant objects
+    "nameplate": None,
+    "desktop": None,
+    "vase": None,
+    "mug": None,
     
-    # === Objects less relevant but keep for context ===
-    "bottle": "other_object",
-    "cup": "other_object",
-    "remote": "other_object",
-    "objects": "other_object",
+    # === Objects less relevant -> SKIP ===
+    "bottle": None,
+    "cup": None,
+    "remote": None,
+    "objects": None,
 }
 
 
 # Final unified classes for AI Interview Proctoring Model
+# ONLY OBJECT CLASSES - Use MediaPipe for behavioral detection (gaze, pose)
 UNIFIED_CLASSES = [
     "phone",            # 0 - Phone in hand or visible
     "earbuds",          # 1 - Earphones, headphones, AirPods
@@ -624,16 +631,11 @@ UNIFIED_CLASSES = [
     "laptop",           # 5 - Laptop/tablet/iPad
     "second_screen",    # 6 - TV/monitor as second screen
     "calculator",       # 7 - Calculator
-    "pen",              # 8 - Pen (low priority)
-    "looking_away",     # 9 - Looking left/right/down/up
-    "looking_forward",  # 10 - Looking at camera (normal)
-    "peeking",          # 11 - Peeking at something
-    "talking",          # 12 - Talking to someone
-    "hand_gesture",     # 13 - Suspicious hand movements
-    "normal",           # 14 - Normal behavior
-    "cheating",         # 15 - General cheating behavior
-    "face_hiding",      # 16 - Face covered by hand/scarf/mask
+    "face_hiding",      # 8 - Face covered by hand/scarf/mask
 ]
+# NOTE: Removed behavioral classes (looking_away, looking_forward, peeking,
+#       talking, hand_gesture, normal, cheating, pen)
+#       These are detected using MediaPipe pose/face mesh instead.
 
 
 class DatasetDownloader:
