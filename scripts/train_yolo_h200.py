@@ -74,7 +74,7 @@ PRESETS = {
     },
 }
 
-# 9 unified OBJECT classes for AI interview proctoring
+# 8 unified OBJECT classes for AI interview proctoring
 # (Removed behavioral classes - use MediaPipe for gaze/pose detection)
 INTERVIEW_CLASSES = [
     "phone",           # Mobile phone usage
@@ -83,7 +83,6 @@ INTERVIEW_CLASSES = [
     "notes",           # Notes/cheat sheets/books
     "another_person",  # Extra person in frame
     "laptop",          # Secondary laptop/tablet
-    "second_screen",   # TV/monitor in background
     "calculator",      # Calculator device
     "face_hiding",     # Face covered by hand/scarf/mask
 ]

@@ -4,19 +4,18 @@ Dataset Downloader for AI Interview Proctoring
 
 Downloads labeled datasets for training YOLO models for LIVE AI INTERVIEW monitoring.
 
-9 OBJECT CLASSES (Behavioral detection done by MediaPipe):
+8 OBJECT CLASSES (Behavioral detection done by MediaPipe):
 ==========================================================
-1. phone - Phone in hand or visible (~35,000+ images)
-2. earbuds - Earphones, headphones, AirPods (~8,000+ images)
-3. smartwatch - Smartwatch/Apple Watch (~5,000+ images)
-4. notes - Books, papers, cheat sheets (~15,000+ images)
-5. another_person - Second person in frame (~30,000+ images)
-6. laptop - Laptop/tablet/iPad (~15,000+ images)
-7. second_screen - TV/monitor in background (~2,000 images)
-8. calculator - Calculator device (~1,000 images)
-9. face_hiding - Face covered by hand/scarf/mask (~3,600 images)
+1. phone - Phone in hand or visible (~21,000+ images)
+2. earbuds - Earphones, headphones, AirPods (~4,000+ images)
+3. smartwatch - Smartwatch/Apple Watch (~3,000+ images)
+4. notes - Books, papers, cheat sheets (~7,000+ images)
+5. another_person - Second person in frame (~58,000+ images)
+6. laptop - Laptop/tablet/iPad (~2,500+ images)
+7. calculator - Calculator device (~500 images)
+8. face_hiding - Face covered by hand/scarf/mask (~300 images)
 
-TOTAL: ~100,000+ IMAGES across 20+ datasets!
+TOTAL: ~138,000 IMAGES across 22 datasets!
 
 NOTE: Behavioral classes (looking_away, cheating, talking, etc.) are REMOVED.
       Use MediaPipe for gaze/pose detection instead.
@@ -432,10 +431,10 @@ CLASS_MAPPING = {
     "adult": "another_person",
     "child": "another_person",
     
-    # === Laptop/tablet/second screen ===
+    # === Laptop/tablet ===
     "laptop": "laptop",
     "ipad": "laptop",
-    "tv": "second_screen",
+    "tv": None,  # Skip - no second_screen class anymore
     
     # === Calculator ===
     "calculator": "calculator",
@@ -534,12 +533,10 @@ UNIFIED_CLASSES = [
     "notes",            # 3 - Books, papers, cheat sheets, sticky notes
     "another_person",   # 4 - Second person in frame (CRITICAL)
     "laptop",           # 5 - Laptop/tablet/iPad
-    "second_screen",    # 6 - TV/monitor as second screen
-    "calculator",       # 7 - Calculator
-    "face_hiding",      # 8 - Face covered by hand/scarf/mask
+    "calculator",       # 6 - Calculator
+    "face_hiding",      # 7 - Face covered by hand/scarf/mask
 ]
-# NOTE: Removed behavioral classes (looking_away, looking_forward, peeking,
-#       talking, hand_gesture, normal, cheating, pen)
+# NOTE: Removed second_screen (no data available), behavioral classes
 #       These are detected using MediaPipe pose/face mesh instead.
 
 
