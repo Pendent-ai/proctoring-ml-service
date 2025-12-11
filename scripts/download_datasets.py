@@ -2,21 +2,24 @@
 """
 Dataset Downloader for AI Interview Proctoring
 
-Downloads labeled datasets for training models for LIVE AI INTERVIEW monitoring:
+Downloads labeled datasets for training YOLO models for LIVE AI INTERVIEW monitoring.
 
-PRIORITY OBJECTS FOR INTERVIEW PROCTORING:
-==========================================
-1. Phone detection (in hand, on desk) - ~50,000+ images
-2. Earbuds/Headphones/AirPods - ~6,000+ images  
-3. Smartwatch - ~3,000+ images
-4. Calculator - ~1,000+ images
-5. Notes/Cheat sheets/Books - ~5,000+ images
-6. Second person in frame - ~45,000+ images
-7. Second screen (TV/monitor) - ~2,000+ images
-8. Gaze direction (looking away) - ~12,000+ images
-9. Hand gestures (suspicious) - ~4,000+ images
+9 OBJECT CLASSES (Behavioral detection done by MediaPipe):
+==========================================================
+1. phone - Phone in hand or visible (~35,000+ images)
+2. earbuds - Earphones, headphones, AirPods (~8,000+ images)
+3. smartwatch - Smartwatch/Apple Watch (~5,000+ images)
+4. notes - Books, papers, cheat sheets (~15,000+ images)
+5. another_person - Second person in frame (~30,000+ images)
+6. laptop - Laptop/tablet/iPad (~15,000+ images)
+7. second_screen - TV/monitor in background (~2,000 images)
+8. calculator - Calculator device (~1,000 images)
+9. face_hiding - Face covered by hand/scarf/mask (~3,600 images)
 
-TOTAL AVAILABLE: ~145,000+ IMAGES across 35+ datasets!
+TOTAL: ~100,000+ IMAGES across 20+ datasets!
+
+NOTE: Behavioral classes (looking_away, cheating, talking, etc.) are REMOVED.
+      Use MediaPipe for gaze/pose detection instead.
 
 PRIORITY 1 DATASETS (Core Training):
 ====================================
@@ -126,24 +129,8 @@ DATASETS = {
         "priority": 1,
         "description": "Comprehensive cheating behaviors with devices"
     },
-    "online_exam_cheating": {
-        "workspace": "fraud-detection-using-cnn",
-        "project": "online-exam-cheating-detection",
-        "version": 1,
-        "images": 7140,
-        "classes": ["normal", "cheating"],
-        "priority": 2,
-        "description": "Large binary cheating/normal dataset"
-    },
-    "online_exam_cheating_2": {
-        "workspace": "fraud-detection-using-cnn",
-        "project": "online-exam-cheating-detection-2",
-        "version": 1,
-        "images": 8180,
-        "classes": ["normal", "cheating"],
-        "priority": 2,
-        "description": "Extended cheating dataset"
-    },
+    # REMOVED: online_exam_cheating - only has [normal, cheating] classes (both skipped)
+    # REMOVED: online_exam_cheating_2 - only has [normal, cheating] classes (both skipped)
     "cheating_rakshitha": {
         "workspace": "rakshitha-beeranhalli-louuy",
         "project": "cheating-detection-wmju5",
@@ -162,15 +149,7 @@ DATASETS = {
         "priority": 1,
         "description": "Multiple exam cheating objects"
     },
-    "classroom_cheating": {
-        "workspace": "classrom-assistance",
-        "project": "cheating-detection-u2v47",
-        "version": 1,
-        "images": 2110,
-        "classes": ["cell phone", "Normal", "Talking"],
-        "priority": 2,
-        "description": "Classroom setting cheating"
-    },
+    # REMOVED: classroom_cheating - Normal/Talking skipped, only phone useful (redundant)
     
     # ============================================================
     # === NEW: ONLINE PROCTORING SPECIFIC (AI Interview) ===
@@ -217,27 +196,8 @@ DATASETS = {
         "category": "interview",
         "description": "iPad/tablet and notebook detection"
     },
-    "proctoring_samya": {
-        "workspace": "samya-eiiy9",
-        "project": "proctoring-rzkos",
-        "version": 1,
-        "images": 782,
-        "classes": ["Kertas", "Menoleh", "Menunduk", "Smartphone", "Tidak_Ada_Kecurangan"],
-        "priority": 3,
-        "category": "interview",
-        "description": "Looking away (Menoleh), head down (Menunduk)"
-    },
-    "exam_proctoring_urhzv": {
-        "workspace": "fyp-lyzmw",
-        "project": "exam-proctoring-urhzv",
-        "version": 1,
-        "images": 463,
-        "classes": ["phone", "cheating", "not_cheating", "note_passing", 
-                   "objects", "possible_cheating"],
-        "priority": 3,
-        "category": "interview",
-        "description": "Cheating likelihood classification"
-    },
+    # REMOVED: proctoring_samya - mostly behavioral (Menoleh, Menunduk, Tidak_Ada_Kecurangan skipped)
+    # REMOVED: exam_proctoring_urhzv - mostly behavioral (cheating, not_cheating, possible_cheating skipped)
     
     # ============================================================
     # === NEW: HEADPHONES/EARBUDS DETECTION (Interview Critical) ===
@@ -294,29 +254,10 @@ DATASETS = {
     },
     
     # ============================================================
-    # === NEW: GAZE/LOOKING DIRECTION DETECTION ===
+    # === GAZE/LOOKING DIRECTION - REMOVED (use MediaPipe instead)
     # ============================================================
-    "gaze_direction": {
-        "workspace": "fraud-detection-using-cnn",
-        "project": "cheating-detection-ohiq5",
-        "version": 1,
-        "images": 197,
-        "classes": ["look_down", "look_forward", "look_left", "look_right", 
-                   "look_up", "mouth_close", "mouth_open"],
-        "priority": 2,
-        "category": "gaze",
-        "description": "Gaze + mouth detection for interview monitoring"
-    },
-    "looking_direction": {
-        "workspace": "project-6jgqt",
-        "project": "face-detection-slqcm",
-        "version": 1,
-        "images": 2060,
-        "classes": ["Back", "Front", "Left", "FrontRight", "Right", "Phone"],
-        "priority": 2,
-        "category": "gaze",
-        "description": "Face orientation with phone detection"
-    },
+    # REMOVED: gaze_direction - all gaze classes skipped (use MediaPipe)
+    # REMOVED: looking_direction - gaze classes skipped (only Phone useful but redundant)
     
     # ============================================================
     # === NEW: CHEATING BEHAVIORS & GESTURES ===
@@ -353,26 +294,8 @@ DATASETS = {
         "category": "cheating",
         "description": "Large normal vs phone usage"
     },
-    "cheating_system_3k": {
-        "workspace": "chetaing-detection",
-        "project": "cheating-detection-system-oy177",
-        "version": 1,
-        "images": 3550,
-        "classes": ["Hand_Gestures", "Passing_of_Paper", "Peeking", "Posture"],
-        "priority": 2,
-        "category": "cheating",
-        "description": "Gestures, paper passing, peeking, posture"
-    },
-    "cheating_analyze": {
-        "workspace": "analyze",
-        "project": "cheating-detection-obw3c",
-        "version": 1,
-        "images": 2790,
-        "classes": ["Fokus", "Mencontek"],
-        "priority": 3,
-        "category": "cheating",
-        "description": "Focused vs Cheating (Indonesian)"
-    },
+    # REMOVED: cheating_system_3k - all behavioral classes skipped (Hand_Gestures, Peeking, Posture)
+    # REMOVED: cheating_analyze - only behavioral classes (Fokus, Mencontek skipped)
     
     # ============================================================
     # === NEW: EXTRA PERSON / MULTIPLE PEOPLE DETECTION ===
@@ -426,16 +349,7 @@ DATASETS = {
         "priority": 4,
         "description": "Spanish labels - notes, earphones, phone, pen, person"
     },
-    "exam_monitoring": {
-        "workspace": "college-hhnwl",
-        "project": "exam-cheating-315",
-        "version": 1,
-        "images": 315,
-        "classes": ["examiner", "learning to copy", "looking around", 
-                   "normal sitting", "talking", "using phone"],
-        "priority": 3,
-        "description": "Behavior classification in exam"
-    },
+    # REMOVED: exam_monitoring - mostly behavioral classes (only 'using phone' useful but small dataset)
     
     # ============================================================
     # === PRIORITY 2: EDGE CASE DATASETS (For Fine-tuning) ===
