@@ -28,49 +28,57 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
-# Training presets optimized for H200 141GB VRAM
+# Training presets optimized for H200 141GB VRAM - MAXED OUT!
+# With 141GB VRAM, we can push batch sizes and image sizes MUCH higher
 PRESETS = {
     "fast": {
         "epochs": 100,
-        "batch": 128,        # H200 can handle massive batches
+        "batch": 256,        # H200 can handle MASSIVE batches
         "imgsz": 640,
         "patience": 30,
-        "description": "Fast training (~25-30 min, ~2 credits)"
+        "description": "Fast training (~20-25 min, ~2 credits)"
     },
     "balanced": {
         "epochs": 200,
-        "batch": 128,
+        "batch": 256,
         "imgsz": 640,
         "patience": 40,
-        "description": "Balanced speed/accuracy (~45 min, ~3 credits)"
+        "description": "Balanced speed/accuracy (~40 min, ~3 credits)"
     },
     "accurate": {
         "epochs": 300,
-        "batch": 128,
-        "imgsz": 640,
+        "batch": 192,
+        "imgsz": 800,        # Higher res for better accuracy
         "patience": 50,
         "description": "High accuracy (~1 hr, ~4 credits)"
     },
     "best": {
         "epochs": 400,
         "batch": 128,
-        "imgsz": 640,
+        "imgsz": 1024,       # Max resolution for best accuracy
         "patience": 60,
-        "description": "Best accuracy (~1.5 hrs, ~6 credits)"
+        "description": "Best accuracy (~2 hrs, ~8 credits)"
     },
     "ultimate": {
         "epochs": 1000,
         "batch": 128,
-        "imgsz": 640,
+        "imgsz": 1024,       # 1024px + large batch = ~120GB VRAM
         "patience": 150,
-        "description": "Ultimate accuracy 1000 epochs (~4-5 hrs, ~18 credits)"
+        "description": "Ultimate accuracy 1000 epochs (~6-8 hrs, ~25 credits)"
     },
     "extreme": {
         "epochs": 600,
-        "batch": 128,
-        "imgsz": 800,       # Higher resolution for extreme accuracy
+        "batch": 96,
+        "imgsz": 1280,       # MAXIMUM resolution - uses ~130GB VRAM
         "patience": 100,
-        "description": "EXTREME accuracy (~3 hrs, ~12 credits)"
+        "description": "EXTREME 1280px resolution (~5 hrs, ~18 credits)"
+    },
+    "beast": {
+        "epochs": 500,
+        "batch": 64,
+        "imgsz": 1536,       # ABSOLUTE MAX - pushes 140GB VRAM limit
+        "patience": 80,
+        "description": "BEAST MODE 1536px - uses ALL 141GB VRAM (~6 hrs, ~22 credits)"
     },
 }
 
@@ -149,17 +157,28 @@ def train(
     # Check GPU
     has_gpu, vram = check_gpu()
     
-    # Auto-adjust batch size based on VRAM
-    if has_gpu and vram < 130:
-        print(f"⚠️  VRAM ({vram:.0f}GB) less than expected for H200 (141GB)")
-        print("   Reducing batch size for safety...")
-        if vram < 80:
-            batch = min(batch, 32)
-        elif vram < 100:
-            batch = min(batch, 48)
-        else:
+    # Auto-adjust batch size based on VRAM - MAXIMIZE USAGE
+    if has_gpu:
+        if vram >= 130:
+            # H200 141GB - GO ALL OUT!
+            print(f"   🔥 Full H200 VRAM available ({vram:.0f}GB) - MAXING OUT!")
+            # Don't reduce batch, let it use full VRAM
+        elif vram >= 80:
+            # H100 80GB range
+            print(f"⚠️  VRAM ({vram:.0f}GB) - adjusting for H100/A100-80GB range")
             batch = min(batch, 64)
-        print(f"   Adjusted batch size: {batch}")
+            imgsz = min(imgsz, 800)
+        elif vram >= 40:
+            # A100 40GB range
+            print(f"⚠️  VRAM ({vram:.0f}GB) - adjusting for A100-40GB range")
+            batch = min(batch, 32)
+            imgsz = min(imgsz, 640)
+        else:
+            # Smaller GPUs
+            print(f"⚠️  VRAM ({vram:.0f}GB) - small GPU, reducing settings")
+            batch = min(batch, 16)
+            imgsz = min(imgsz, 640)
+        print(f"   Final settings: batch={batch}, imgsz={imgsz}")
     
     # Validate data path
     data_path = Path(data_yaml)
