@@ -54,9 +54,8 @@ class AudioPredictor(BasePredictor):
     """
     
     def __init__(self, cfg: AudioConfig):
-        super().__init__(cfg)
-        
-        # Models
+        # Initialize model placeholders BEFORE super().__init__()
+        # because super().__init__() calls setup_model() which sets these
         self.vad_model = None
         self.speaker_encoder = None
         
@@ -84,6 +83,9 @@ class AudioPredictor(BasePredictor):
         
         # Alert cooldown
         self.last_alerts: Dict[str, datetime] = {}
+        
+        # This calls setup_model() which populates self.vad_model, speaker_encoder
+        super().__init__(cfg)
         
     def setup_model(self):
         """Load pre-trained models."""

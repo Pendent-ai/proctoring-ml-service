@@ -82,8 +82,8 @@ class VideoPredictor(BasePredictor):
         Args:
             cfg: Video configuration
         """
-        super().__init__(cfg)
-        
+        # Initialize model placeholders BEFORE super().__init__() 
+        # because super().__init__() calls setup_model() which sets these
         self.yolo = None
         self.face_mesh = None
         self.face_detection = None
@@ -91,64 +91,78 @@ class VideoPredictor(BasePredictor):
         # Feature extractor for classifier
         self._feature_history = []
         self._classifier = None
+        
+        # This calls setup_model() which populates self.yolo, face_mesh, face_detection
+        super().__init__(cfg)
     
     def setup_model(self):
         """Load YOLO and MediaPipe models."""
-        import torch
-        
-        # Load YOLO
-        YOLO = _import_yolo()
-        
-        model_path = self.cfg.yolo_model_path
-        
-        if not Path(model_path).exists():
-            print("📥 Downloading YOLO11 model...")
-            model_path = "yolo11n.pt"
-        
-        self.yolo = YOLO(model_path)
-        
-        # Detect best available device
-        if self.cfg.use_gpu:
-            if torch.backends.mps.is_available():
-                # Apple Silicon (M1/M2/M3/M4)
-                self.yolo.to("mps")
-                self.device = "mps"
-                print("🍎 Using Apple MPS (Metal Performance Shaders)")
-            elif torch.cuda.is_available():
-                # NVIDIA GPU
-                self.yolo.to("cuda")
-                self.device = "cuda"
-                print("🎮 Using NVIDIA CUDA")
+        try:
+            import torch
+            
+            # Load YOLO
+            YOLO = _import_yolo()
+            
+            model_path = Path(self.cfg.yolo_model_path)
+            
+            # Check if trained model exists - DO NOT download, fail gracefully
+            if not model_path.exists():
+                raise FileNotFoundError(
+                    f"❌ Trained YOLO model not found at: {model_path}\n"
+                    f"Please ensure the trained model exists. "
+                    f"Run training first or check the model path in config."
+                )
+            
+            self.yolo = YOLO(str(model_path))
+            
+            # Detect best available device
+            if self.cfg.use_gpu:
+                if torch.backends.mps.is_available():
+                    # Apple Silicon (M1/M2/M3/M4)
+                    self.yolo.to("mps")
+                    self.device = "mps"
+                    print("🍎 Using Apple MPS (Metal Performance Shaders)")
+                elif torch.cuda.is_available():
+                    # NVIDIA GPU
+                    self.yolo.to("cuda")
+                    self.device = "cuda"
+                    print("🎮 Using NVIDIA CUDA")
+                else:
+                    # CPU fallback
+                    self.device = "cpu"
+                    print("💻 Using CPU (no GPU available)")
             else:
-                # CPU fallback
                 self.device = "cpu"
-                print("💻 Using CPU (no GPU available)")
-        else:
-            self.device = "cpu"
-            print("💻 Using CPU (GPU disabled in config)")
-        
-        print(f"✅ YOLO11 loaded: {model_path} on {self.device}")
-        
-        # Load MediaPipe
-        mp = _import_mediapipe()
-        
-        self.face_mesh = mp.solutions.face_mesh.FaceMesh(
-            static_image_mode=False,
-            max_num_faces=3,
-            refine_landmarks=True,
-            min_detection_confidence=self.cfg.face_confidence,
-            min_tracking_confidence=0.5,
-        )
-        
-        self.face_detection = mp.solutions.face_detection.FaceDetection(
-            model_selection=1,
-            min_detection_confidence=self.cfg.face_confidence,
-        )
-        
-        print("✅ MediaPipe initialized")
-        
-        # Load classifier
-        self._load_classifier()
+                print("💻 Using CPU (GPU disabled in config)")
+            
+            print(f"✅ YOLO11 loaded: {model_path} on {self.device}")
+            
+            # Load MediaPipe
+            mp = _import_mediapipe()
+            
+            self.face_mesh = mp.solutions.face_mesh.FaceMesh(
+                static_image_mode=False,
+                max_num_faces=3,
+                refine_landmarks=True,
+                min_detection_confidence=self.cfg.face_confidence,
+                min_tracking_confidence=0.5,
+            )
+            
+            self.face_detection = mp.solutions.face_detection.FaceDetection(
+                model_selection=1,
+                min_detection_confidence=self.cfg.face_confidence,
+            )
+            
+            print("✅ MediaPipe initialized")
+            
+            # Load classifier
+            self._load_classifier()
+            
+        except Exception as e:
+            print(f"❌ Failed to setup models: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
     
     def _load_classifier(self):
         """Load cheating classifier."""
@@ -202,6 +216,10 @@ class VideoPredictor(BasePredictor):
         Returns:
             Raw inference results
         """
+        # Ensure models are loaded
+        if self.yolo is None or self.face_detection is None or self.face_mesh is None:
+            raise RuntimeError("Models not initialized. Call setup_model() first.")
+        
         # Run YOLO
         yolo_results = self.yolo(
             frame,
@@ -533,8 +551,16 @@ class VideoPredictor(BasePredictor):
         return self.yolo.export(format=format, **kwargs)
     
     def close(self):
-        """Release resources."""
+        """Release resources. Safe to call multiple times."""
         if self.face_mesh:
-            self.face_mesh.close()
+            try:
+                self.face_mesh.close()
+            except Exception:
+                pass  # Already closed
+            self.face_mesh = None
         if self.face_detection:
-            self.face_detection.close()
+            try:
+                self.face_detection.close()
+            except Exception:
+                pass  # Already closed
+            self.face_detection = None

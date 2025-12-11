@@ -7,7 +7,7 @@ for cheating behaviors using the trained YOLO model.
 
 Usage:
     python scripts/live_detection.py
-    python scripts/live_detection.py --model runs/detect/proctoring_h200_20251209_020408/weights/best.pt
+    python scripts/live_detection.py --model runs/detect/proctoring_h200_20251210_060042/weights/best.pt
     python scripts/live_detection.py --conf 0.5
 
 Controls:
@@ -59,20 +59,27 @@ HIGH_RISK_CLASSES = [
 ]
 
 # Classes that need higher confidence to reduce false positives
-# (e.g., book covers, posters detected as "another_person")
 HIGH_CONF_CLASSES = {
     "another_person": 0.75,  # Requires 75% confidence (reduce false positives on book covers)
-    "cheating": 0.55,
-    "peeking": 0.55,
+    "cheating": 0.60,
+    "peeking": 0.60,
+    "phone": 0.50,           # Requires 50% confidence for phone
+    "earbuds": 0.50,
+    "smartwatch": 0.50,
+    "laptop": 0.55,
+    "second_screen": 0.55,
+    "notes": 0.50,
+    "calculator": 0.50,
+    "face_hiding": 0.55,
 }
 
 # Classes that can use lower confidence (gaze/behavior detection)
 LOW_CONF_CLASSES = {
-    "looking_away": 0.20,
-    "looking_forward": 0.20,
-    "talking": 0.25,
-    "hand_gesture": 0.25,
-    "normal": 0.20,
+    "looking_away": 0.30,
+    "looking_forward": 0.30,
+    "talking": 0.35,
+    "hand_gesture": 0.35,
+    "normal": 0.30,
 }
 
 
@@ -81,7 +88,7 @@ def get_color(class_name):
     return COLORS.get(class_name, (255, 255, 255))
 
 
-def draw_detections(frame, results, conf_threshold=0.25):
+def draw_detections(frame, results, conf_threshold=0.45):
     """Draw bounding boxes and labels on frame."""
     alerts = []
     
@@ -170,7 +177,7 @@ def draw_status_bar(frame, fps, alerts, paused=False):
 def main():
     parser = argparse.ArgumentParser(description="Live Proctoring Detection")
     parser.add_argument("--model", "-m", type=str, 
-                       default="runs/detect/proctoring_h200_20251209_020408/weights/best.pt",
+                       default="runs/detect/proctoring_h200_20251210_060042/weights/best.pt",
                        help="Path to YOLO model")
     parser.add_argument("--conf", "-c", type=float, default=0.25,
                        help="Confidence threshold (default: 0.25)")

@@ -68,23 +68,42 @@ class ProctoringService:
         """Initialize proctoring components."""
         logger.info("🔧 Initializing proctoring components...")
         
-        # Initialize models
-        self.video_proctor = VideoProctor(verbose=self.verbose)
-        self.audio_proctor = AudioProctor(verbose=self.verbose)
-        
-        # Initialize receivers
-        self.video_receiver = VideoReceiver(
-            target_fps=self.settings.process_fps,
-            target_width=self.settings.frame_width,
-            target_height=self.settings.frame_height,
-        )
-        
-        self.audio_receiver = AudioReceiver(
-            target_sample_rate=16000,
-            chunk_duration_ms=500,
-        )
-        
-        logger.info("✅ Components initialized")
+        try:
+            # Initialize models
+            self.video_proctor = VideoProctor(verbose=self.verbose)
+            self.audio_proctor = AudioProctor(verbose=self.verbose)
+            
+            # Force predictor initialization to catch errors early
+            logger.info("🔧 Initializing video predictor...")
+            _ = self.video_proctor.predictor
+            logger.info("✅ Video predictor initialized")
+            
+            logger.info("🔧 Initializing audio predictor...")
+            _ = self.audio_proctor.predictor
+            logger.info("✅ Audio predictor initialized")
+            
+            # Initialize receivers
+            self.video_receiver = VideoReceiver(
+                target_fps=self.settings.process_fps,
+                target_width=self.settings.frame_width,
+                target_height=self.settings.frame_height,
+            )
+            
+            self.audio_receiver = AudioReceiver(
+                target_sample_rate=16000,
+                chunk_duration_ms=500,
+            )
+            
+            logger.info("✅ Components initialized")
+            
+        except FileNotFoundError as e:
+            logger.error(f"❌ Model file not found: {e}")
+            logger.error("⛔ Cannot start service without trained model. Shutting down gracefully.")
+            raise SystemExit(1)
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize components: {e}")
+            logger.error("⛔ Shutting down gracefully due to initialization error.")
+            raise SystemExit(1)
     
     async def connect(
         self,
@@ -179,6 +198,11 @@ class ProctoringService:
                 break
             
             try:
+                # Ensure proctor is initialized
+                if self.video_proctor is None:
+                    logger.error("❌ Video proctor not initialized")
+                    continue
+                
                 # Run video proctoring
                 result = self.video_proctor.predict(video_frame.frame)
                 
@@ -202,6 +226,8 @@ class ProctoringService:
                     
             except Exception as e:
                 logger.error(f"❌ Video processing error: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
     
     async def _process_audio(self, track: rtc.Track, participant_id: str):
         """Process audio track for proctoring analysis."""

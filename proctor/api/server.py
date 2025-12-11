@@ -7,7 +7,7 @@ Exposes HTTP API for backend to request room monitoring.
 
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
