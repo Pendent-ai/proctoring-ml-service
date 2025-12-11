@@ -154,17 +154,8 @@ DATASETS = {
     # ============================================================
     # === NEW: ONLINE PROCTORING SPECIFIC (AI Interview) ===
     # ============================================================
-    "online_proctoring_system": {
-        "workspace": "project-2morrow-software-limited",
-        "project": "online-proctoring-system-x27ou",
-        "version": 1,
-        "images": 9900,
-        "classes": ["face", "looking_down", "looking_left", "looking_right", 
-                   "looking_straight", "looking_up", "mobile_phone"],
-        "priority": 1,
-        "category": "interview",
-        "description": "⭐ LARGE - Gaze detection + phone for ONLINE interviews"
-    },
+    # REMOVED: online_proctoring_system - mostly gaze classes (use MediaPipe instead)
+    #          Only mobile_phone useful but we have 30K+ phone images already
     "online_proctoring_deep_learning": {
         "workspace": "deep-learning-jdjnf",
         "project": "online-proctoring-system",
